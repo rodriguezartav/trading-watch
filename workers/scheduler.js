@@ -21,7 +21,7 @@ async function Scheduler() {
         "scripts.location as script_location",
          "schedules.time_to_live"
       )
-       .join("scripts", "scripts.id", "jobs.script_id")
+      .join("scripts", "scripts.id", "jobs.script_id")
       .join("schedules", "schedules.id", "jobs.schedule_id")
       .whereNotNull("scripts.location")
       .where("status", "pending");
@@ -114,7 +114,7 @@ async function Scheduler() {
         console.log(e);
         console.log("PROCESS_RUNNER ERROR");
       }
-    }, 10000);
+    }, 25000);
   } catch (e) {
     console.log("PROCESS_RUNNER CRITICAL_ERROR");
     console.error(e);
