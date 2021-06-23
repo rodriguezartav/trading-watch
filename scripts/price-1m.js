@@ -25,8 +25,16 @@ async function Run(){
         const price = prices[stock.name];
         const createdAt = moment(price.latestTrade.t).toISOString();
 
+        let deltaD = 0
+
+        if( price.latestTrade.p < price.prevDailyBar.c ) deltaD =  (( price.prevDailyBar.c - price.latestTrade.p ) / price.prevDailyBar.c )*-100
+        else deltaD =  (( price.latestTrade.p - price.prevDailyBar.c ) / price.prevDailyBar.c )*100
+
+        deltaD = parseInt(deltaD * 100)/100;
+
+
         await knex.table("prices_1").insert({ stock_id_created_at: `${stock.id}_${createdAt}`, created_at: createdAt ,stock_id: stock.id, value: price.latestTrade.p }).onConflict("stock_id_created_at").merge()
-        await knex.table("stocks").update({ price: price.latestTrade.p }).where("id",stock.id);
+        await knex.table("stocks").update({ price: price.latestTrade.p, price_delta_d: deltaD  }).where("id",stock.id);
         index++;
     }
  
