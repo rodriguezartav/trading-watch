@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@alpacahq/alpaca-trade-api": "^2.3.0",
+    "dotenv": "^10.0.0",
+    "finnhub": "^1.2.1",
+    "knex": "^0.95.6",
+    "moment": "^2.29.1",
+    "pg": "^8.6.0",
+    "superagent": "^6.1.0"
+  }
+}
