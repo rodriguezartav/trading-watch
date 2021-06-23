@@ -33,5 +33,6 @@ async function Run(){
 
     return true;
 }
+module.exports=Run;
 
-Run();
+if(process.env.LOCAL) Run();
