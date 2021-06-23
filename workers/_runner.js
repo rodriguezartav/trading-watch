@@ -66,7 +66,7 @@ async function Run() {
       })}`
     );
 
-    const script = require("../" + scriptPath);
+    const script = require("../scripts/" + scriptPath);
     await script( job_id, scriptOptions);
 
     console.log(
