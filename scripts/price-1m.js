@@ -24,13 +24,10 @@ async function Run(){
         const createdAt = moment(price.latestTrade.t).toISOString();
 
         await knex.table("prices_1").insert({ stock_id_created_at: `${stock.id}_${createdAt}`, created_at: createdAt ,stock_id: stock.id, value: price.latestTrade.p }).onConflict("stock_id_created_at").merge()
+        await knex.table("stocks").update({ price: price.latestTrade.p }).where("id",stock.id);
         index++;
     }
-
-    //const stockCandles = util.promisify(FinHub.stockCandles).bind(FinHub)
-    //const data = await stockCandles("AAPL", "1", moment().add(-2,"hours").unix(), moment().unix(),{});
-    //console.log(data);
-
+ 
     return true;
 }
 module.exports=Run;
