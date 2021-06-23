@@ -15,6 +15,8 @@ async function Run(){
  
     const prices = (await Alpaca.data("stocks/snapshots").query({symbols: stocks.map( item=>item.name ).join(",") })).body;
 
+    //const oldPrices = await knex.table("prices_1").distinct("stock_id").select("value").order("created_at","desc");
+
     let index =0;
 
 
