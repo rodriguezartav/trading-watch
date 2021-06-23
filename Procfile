@@ -1,3 +1,3 @@
-creator: node ./workers/creator.js
+web: node ./app.js
 scheduler: node ./workers/scheduler.js
 
