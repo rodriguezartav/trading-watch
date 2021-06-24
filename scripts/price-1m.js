@@ -27,8 +27,6 @@ async function Run() {
     const price = prices[stock.name];
     const createdAt = moment(price.latestTrade.t).toISOString();
 
-    let deltaD = 0;
-
     const oldPrices = await knex
       .table("prices_1")
       .select("value", "is_5_min")
