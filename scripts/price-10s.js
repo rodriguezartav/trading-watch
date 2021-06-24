@@ -37,6 +37,7 @@ async function Run() {
         })
         .where("id", stock.id)
     );
+    index++;
   }
 
   await Promise.all(promises);

@@ -5,7 +5,7 @@
 require("dotenv").config();
 const moment = require("moment");
 
- const Knex = require("../helpers/knex");
+const Knex = require("../helpers/knex");
 
 setInterval(async () => {
   try {
@@ -46,7 +46,7 @@ setInterval(async () => {
               job_id: ids[0],
               schedule_id: schedule.id,
               script_id: schedule.script_id,
-               time: moment().valueOf(),
+              time: moment().valueOf(),
             })}`
           );
         }
@@ -65,11 +65,8 @@ setInterval(async () => {
 
     const jobs = await knex
       .table("jobs")
-      .select(
-        "jobs.*",
-        "scripts.name as script_name",
-       )
-       .join("scripts", "scripts.id", "jobs.script_id")
+      .select("jobs.*", "scripts.name as script_name")
+      .join("scripts", "scripts.id", "jobs.script_id")
       .whereIn("status", ["working"]);
 
     const lateJobs = jobs.filter((item) => {
@@ -84,10 +81,7 @@ setInterval(async () => {
       await slack.chat.postMessage({
         text: `Some jobs seem to be stuck. (${lateJobs
           .map(
-            (item) =>
-              `${item.script_name} ${moment(
-                item.created_at
-              ).fromNow()}`
+            (item) => `${item.script_name} ${moment(item.created_at).fromNow()}`
           )
           .join("\n")} `,
         channel: slack.generalChannelId,
