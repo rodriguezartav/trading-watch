@@ -48,6 +48,9 @@ async function Run() {
     let has_5_min = false;
     let priceExists = false;
 
+    let roc_5 = average(oldPrices);
+    let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
+
     if (oldPrices.length > 0) {
       oldPrices.map((item, index) => {
         if (moment(item.created_at).diff(createdAt, "seconds") < 10)
@@ -58,11 +61,8 @@ async function Run() {
         return priceDiff(oldPrices[index - 1], item.value);
       });
 
-      let roc_5 = average(oldPrices);
-
       console.log(stock.name, oldPrices);
 
-      let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
       let delta1 = priceDiff(
         oldPrices[oldPrices.length - 1].value,
         price.latestTrade.p
