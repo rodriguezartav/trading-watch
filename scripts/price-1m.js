@@ -30,7 +30,7 @@ async function Run() {
     const oldPrices = await knex
       .table("prices_1")
       .select("value", "is_5_min")
-      .order("created_at", "desc")
+      .orderBy("created_at", "desc")
       .where("id", stock.id)
       .limit(5);
 
