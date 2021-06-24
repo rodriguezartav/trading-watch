@@ -1,9 +1,9 @@
 var express = require("express");
 var router = express.Router();
- const Knex = require("../../helpers/knex");
+const Knex = require("../../helpers/knex");
 const moment = require("moment");
 const superagent = require("superagent");
- const Slack = require("../../helpers/slack");
+const Slack = require("../../helpers/slack");
 
 const knex = Knex();
 
@@ -58,8 +58,8 @@ router.post("/", async function (req, res, next) {
       await knex.table("jobs").delete().where("id", jobId);
       if (job)
         await slack.chat.postMessage({
-          text: `Error in Job id ${jobId} for script ${job.script_location} https://my.papertrailapp.com/groups/23740542/events?q=${name}`,
-          link: `https://my.papertrailapp.com/groups/23740542/events?q=${name}`,
+          text: `Error in Job id ${jobId} for script ${job.script_location} https://my.papertrailapp.com/events?q=${name}`,
+          link: `https://my.papertrailapp.com/events?q=${name}`,
           channel: slack.generalChannelId,
         });
 
