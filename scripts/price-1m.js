@@ -57,7 +57,16 @@ async function Run() {
     let roc_5 = average(oldPrices);
 
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
-    let delta1 = priceDiff(price.minuteBar.o, price.minuteBar.c);
+    let delta1 = priceDiff(
+      oldPrices[oldPrices.length].price,
+      price.latestTrade.p
+    );
+
+    if (delta1 > 0.4)
+      await slack.chat.postMessage({
+        text: `${stock.name} increased ${stock.delta1} in the last 1 minute`,
+        channel: slack.generalChannelId,
+      });
 
     if (!priceExists) {
       try {

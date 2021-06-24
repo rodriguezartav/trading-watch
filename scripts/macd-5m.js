@@ -67,8 +67,6 @@ async function Run() {
       const open90 = macd_5.o[lastIndex5 - 18];
       const close90 = macd_5.c[lastIndex5 - 18];
 
-      console.log(moment.unix(macd_5.t[lastIndex5]).toISOString());
-
       stock.price_delta_5 = priceDiff(currentOpen, currentClose);
       stock.price_delta_30 = priceDiff(open30, currentClose);
       stock.price_delta_90 = priceDiff(open90, currentClose);
@@ -98,7 +96,7 @@ async function Run() {
         .unix(macd_D.t[macdChangeIndex])
         .toISOString();
 
-      if (stock.price_delta_5 > 0.4)
+      if (stock.price_delta_5 > 1)
         await slack.chat.postMessage({
           text: `${stock.name} increased ${stock.price_delta_5} in the last 5 minutes`,
           channel: slack.generalChannelId,
