@@ -41,6 +41,7 @@ async function Run() {
         "macd",
         {}
       );
+
       const macd_D = await FinHub(
         "technicalIndicator",
         stock.name,

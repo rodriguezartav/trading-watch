@@ -27,6 +27,15 @@ async function Run() {
     const price = prices[stock.name];
     const createdAt = moment(price.latestTrade.t).toISOString();
 
+    const candles = await FinHub(
+      "stockCandles",
+      stock.name,
+      "5",
+      moment().utcOffset(-4).hour(9).minute(30).unix(),
+      moment().unix(),
+      {}
+    );
+
     const oldPrices = await knex
       .table("prices_1")
       .select("value", "is_5_min")
@@ -69,6 +78,13 @@ async function Run() {
         })
         .where("id", stock.id);
     }
+    await knex
+      .table("stocks")
+      .update({
+        today_prices: candles.c.join(","),
+      })
+      .where("id", stock.id);
+
     index++;
   }
 
