@@ -6,9 +6,10 @@ const moment = require("moment");
 const { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
 const Slack = require("../helpers/slack");
 
-const knex = Knex();
-
 async function Run() {
+  const knex = await Knex();
+  const slack = await Slack();
+
   const stocks = await knex.table("stocks").select();
   const stockMap = {};
   stocks.forEach((item) => {
