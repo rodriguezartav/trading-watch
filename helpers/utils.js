@@ -11,6 +11,9 @@ function delay(t, val) {
 function priceDiff(b, a) {
   let deltaD = 0;
 
+  if (b == null) b = 0;
+  if (a == null) a = 0;
+
   if (a < b) deltaD = ((b - a) / b) * -100;
   else deltaD = ((a - b) / b) * 100;
   return parseInt(deltaD * 100) / 100;

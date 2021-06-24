@@ -51,19 +51,19 @@ async function Run() {
 
     if (oldPrices.length > 0) {
       delta1 = priceDiff(
-        oldPrices[oldPrices.length - 1].value,
+        (oldPrices[oldPrices.length - 1] || {}).value,
         price.latestTrade.p
       );
       let delta2 = priceDiff(
-        oldPrices[oldPrices.length - 2].value,
+        (oldPrices[oldPrices.length - 2] || {}).value,
         price.latestTrade.p
       );
       let delta3 = priceDiff(
-        oldPrices[oldPrices.length - 3].value,
+        (oldPrices[oldPrices.length - 3] || {}).value,
         price.latestTrade.p
       );
       let delta4 = priceDiff(
-        oldPrices[oldPrices.length - 4].value,
+        (oldPrices[oldPrices.length - 4] || {}).value,
         price.latestTrade.p
       );
 
