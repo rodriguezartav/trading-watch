@@ -45,25 +45,11 @@ async function Run() {
       .where("id", stock.id)
       .limit(5);
 
-    let has_5_min = false;
-    let priceExists = false;
-
     let roc_5 = average(oldPrices);
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
     let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
 
     if (oldPrices.length > 0) {
-      oldPrices.map((item, index) => {
-        if (moment(item.created_at).diff(createdAt, "seconds") < 10)
-          priceExists = true;
-        if (item.is_5_min) has_5_min = true;
-
-        if (index == 0) return;
-        return priceDiff(oldPrices[index - 1], item.value);
-      });
-
-      console.log(stock.name, oldPrices);
-
       delta1 = priceDiff(
         oldPrices[oldPrices.length - 1].value,
         price.latestTrade.p
@@ -87,17 +73,18 @@ async function Run() {
           channel: slack.generalChannelId,
         });
     }
-    if (!priceExists) {
-      try {
-        await knex.table("prices_1").insert({
-          stock_id_created_at: `${stock.id}_${createdAt}`,
-          created_at: createdAt,
-          stock_id: stock.id,
-          value: price.latestTrade.p,
-          is_5_min: !has_5_min,
-        });
-      } catch (e) {}
-    }
+
+    await knex
+      .table("prices_1")
+      .insert({
+        stock_id_created_at: `${stock.id}_${createdAt}`,
+        created_at: createdAt,
+        stock_id: stock.id,
+        value: price.latestTrade.p,
+      })
+      .onConflict("stock_id_created_at")
+      .merge();
+
     await knex
       .table("stocks")
       .update({
