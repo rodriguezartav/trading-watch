@@ -59,7 +59,7 @@ async function Run() {
 
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
     let delta1 = priceDiff(
-      oldPrices[oldPrices.length].price,
+      oldPrices[oldPrices.length - 1].value,
       price.latestTrade.p
     );
 
