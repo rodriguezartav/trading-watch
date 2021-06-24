@@ -60,13 +60,15 @@ async function Run() {
     let delta1 = priceDiff(price.minuteBar.o, price.minuteBar.c);
 
     if (!priceExists) {
-      await knex.table("prices_1").insert({
-        stock_id_created_at: `${stock.id}_${createdAt}`,
-        created_at: createdAt,
-        stock_id: stock.id,
-        value: price.latestTrade.p,
-        is_5_min: !has_5_min,
-      });
+      try {
+        await knex.table("prices_1").insert({
+          stock_id_created_at: `${stock.id}_${createdAt}`,
+          created_at: createdAt,
+          stock_id: stock.id,
+          value: price.latestTrade.p,
+          is_5_min: !has_5_min,
+        });
+      } catch (e) {}
     }
     await knex
       .table("stocks")
