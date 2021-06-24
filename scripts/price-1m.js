@@ -67,7 +67,10 @@ async function Run() {
         price.latestTrade.p
       );
 
-      if (delta1 > 0.4 || (delta1 > delta2 && delta2 > delta3))
+      if (
+        delta1 > 0.4 ||
+        (delta1 > delta2 && delta2 > delta3 && delta3 > delta4)
+      )
         await slack.chat.postMessage({
           text: `${stock.name} increased ${delta1} % in the last 1 minute. [${delta2},${delta3},${delta4}]`,
           channel: slack.generalChannelId,
@@ -90,7 +93,6 @@ async function Run() {
       .update({
         roc_5: isPreMarket ? 0 : roc_5,
         price_delta_1: isPreMarket ? 0 : delta1,
-        price: price.latestTrade.p,
         price_delta_d: isPreMarket ? 0 : deltaD,
         today_prices: candles.c.join(","),
       })
