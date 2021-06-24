@@ -3,7 +3,7 @@ const FinHub = require("../helpers/finhub");
 const Alpaca = require("../helpers/alpaca");
 const util = require("util");
 const moment = require("moment");
-const { delay, priceDiff, average } = require("../helpers/utils");
+const { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
 
 const knex = Knex();
 
@@ -52,7 +52,7 @@ async function Run() {
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
     let delta1 = priceDiff(price.minuteBar.o, price.minuteBar.c);
 
-    if (!priceExists)
+    if (!priceExists) {
       await knex.table("prices_1").insert({
         stock_id_created_at: `${stock.id}_${createdAt}`,
         created_at: createdAt,
@@ -61,15 +61,16 @@ async function Run() {
         is_5_min: !has_5_min,
       });
 
-    await knex
-      .table("stocks")
-      .update({
-        roc_5: roc_5,
-        price_delta_1: delta1,
-        price: price.latestTrade.p,
-        price_delta_d: deltaD,
-      })
-      .where("id", stock.id);
+      await knex
+        .table("stocks")
+        .update({
+          roc_5: isPreMarket ? 0 : roc_5,
+          price_delta_1: isPreMarket ? 0 : delta1,
+          price: price.latestTrade.p,
+          price_delta_d: isPreMarket ? 0 : deltaD,
+        })
+        .where("id", stock.id);
+    }
     index++;
   }
 

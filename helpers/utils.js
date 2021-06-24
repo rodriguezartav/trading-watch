@@ -22,6 +22,15 @@ function average(array) {
   }, 0);
 }
 
+function isPreMarket() {
+  const toOpen = moment().diff(
+    moment().utcOffset(-4).hour(9).minute(30),
+    "minutes"
+  );
+  if (toOpen < 0) return true;
+  else return false;
+}
+
 module.exports = {
   delay,
   priceDiff,
