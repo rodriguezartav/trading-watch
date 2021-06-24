@@ -67,20 +67,14 @@ async function Run() {
         value: price.latestTrade.p,
         is_5_min: !has_5_min,
       });
-
-      await knex
-        .table("stocks")
-        .update({
-          roc_5: isPreMarket ? 0 : roc_5,
-          price_delta_1: isPreMarket ? 0 : delta1,
-          price: price.latestTrade.p,
-          price_delta_d: isPreMarket ? 0 : deltaD,
-        })
-        .where("id", stock.id);
     }
     await knex
       .table("stocks")
       .update({
+        roc_5: isPreMarket ? 0 : roc_5,
+        price_delta_1: isPreMarket ? 0 : delta1,
+        price: price.latestTrade.p,
+        price_delta_d: isPreMarket ? 0 : deltaD,
         today_prices: candles.c.join(","),
       })
       .where("id", stock.id);
