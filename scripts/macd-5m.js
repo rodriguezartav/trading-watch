@@ -98,7 +98,7 @@ async function Run() {
 
       if (stock.price_delta_5 > 1)
         await slack.chat.postMessage({
-          text: `${stock.name} increased ${stock.price_delta_5} in the last 5 minutes`,
+          text: `${stock.name} increased ${stock.price_delta_5} % in the last 5 minutes`,
           channel: slack.generalChannelId,
         });
 

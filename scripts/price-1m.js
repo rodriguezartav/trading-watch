@@ -4,6 +4,7 @@ const Alpaca = require("../helpers/alpaca");
 const util = require("util");
 const moment = require("moment");
 const { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
+const Slack = require("../helpers/slack");
 
 const knex = Knex();
 
@@ -64,7 +65,7 @@ async function Run() {
 
     if (delta1 > 0.4)
       await slack.chat.postMessage({
-        text: `${stock.name} increased ${stock.delta1} in the last 1 minute`,
+        text: `${stock.name} increased ${stock.delta1} % in the last 1 minute`,
         channel: slack.generalChannelId,
       });
 
