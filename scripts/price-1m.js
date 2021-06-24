@@ -50,6 +50,7 @@ async function Run() {
 
     let roc_5 = average(oldPrices);
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
+    let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
 
     if (oldPrices.length > 0) {
       oldPrices.map((item, index) => {
@@ -63,7 +64,7 @@ async function Run() {
 
       console.log(stock.name, oldPrices);
 
-      let delta1 = priceDiff(
+      delta1 = priceDiff(
         oldPrices[oldPrices.length - 1].value,
         price.latestTrade.p
       );

@@ -24,20 +24,22 @@ async function Run() {
 
   let index = 0;
 
+  const promises = [];
   while (index < stocks.length) {
     const stock = stocks[index];
     const price = prices[stock.name];
     stock.price = price.latestTrade.p;
+    promises.push(
+      knex
+        .table("stocks")
+        .update({
+          price: price.latestTrade.p,
+        })
+        .where("id", stock.id)
+    );
   }
 
-  await knex
-    .table("stocks")
-    .insert({
-      id: stock.id,
-      price: price.latestTrade.p,
-    })
-    .onConflict("id")
-    .merge();
+  await Promise.all(promises);
 
   return true;
 }
