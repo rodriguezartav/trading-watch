@@ -37,7 +37,10 @@ async function Run() {
       .limit(5);
 
     let has_5_min = false;
+    let priceExists = false;
     oldPrices.map((item, index) => {
+      if (moment(item.created_at).diff(createdAt, "seconds") < 10)
+        priceExists = true;
       if (item.is_5_min) has_5_min = true;
 
       if (index == 0) return;
@@ -49,17 +52,15 @@ async function Run() {
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
     let delta1 = priceDiff(price.minuteBar.o, price.minuteBar.c);
 
-    await knex
-      .table("prices_1")
-      .insert({
+    if (!priceExists)
+      await knex.table("prices_1").insert({
         stock_id_created_at: `${stock.id}_${createdAt}`,
         created_at: createdAt,
         stock_id: stock.id,
         value: price.latestTrade.p,
         is_5_min: !has_5_min,
-      })
-      .onConflict("stock_id_created_at")
-      .merge();
+      });
+
     await knex
       .table("stocks")
       .update({
