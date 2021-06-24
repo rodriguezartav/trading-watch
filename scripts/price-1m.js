@@ -58,15 +58,29 @@ async function Run() {
 
     let roc_5 = average(oldPrices);
 
+    console.log(stock.name, oldPrices);
+
     let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
     let delta1 = priceDiff(
       oldPrices[oldPrices.length - 1].value,
       price.latestTrade.p
     );
+    let delta2 = priceDiff(
+      oldPrices[oldPrices.length - 2].value,
+      price.latestTrade.p
+    );
+    let delta3 = priceDiff(
+      oldPrices[oldPrices.length - 3].value,
+      price.latestTrade.p
+    );
+    let delta4 = priceDiff(
+      oldPrices[oldPrices.length - 4].value,
+      price.latestTrade.p
+    );
 
-    if (delta1 > 0.4)
+    if (delta1 > 0.4 || (delta1 > delta2 && delta2 > delta3))
       await slack.chat.postMessage({
-        text: `${stock.name} increased ${delta1} % in the last 1 minute`,
+        text: `${stock.name} increased ${delta1} % in the last 1 minute. [${delta2},${delta3},${delta4}]`,
         channel: slack.generalChannelId,
       });
 
