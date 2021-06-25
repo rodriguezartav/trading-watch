@@ -30,23 +30,22 @@ async function Run() {
     let firstTrade = stock.today_prices.split(",")[0];
     if (firstTrade) firstTrade = parseFloat(firstTrade);
 
-    if (stock.price != price.latestTrade.p)
-      promises.push(
-        knex
-          .table("stocks")
-          .update({
-            last_price_update_at: moment().toISOString(),
-            price: price.latestTrade.p,
-            price_delta_d:
-              isPreMarket() && firstTrade
-                ? priceDiff(
-                    isPreMarket() ? firstTrade : price.dailyBar.o,
-                    price.latestTrade.p
-                  )
-                : 0,
-          })
-          .where("id", stock.id)
-      );
+    promises.push(
+      knex
+        .table("stocks")
+        .update({
+          last_price_update_at: moment().toISOString(),
+          price: price.latestTrade.p,
+          price_delta_d:
+            isPreMarket() && firstTrade
+              ? priceDiff(
+                  isPreMarket() ? firstTrade : price.dailyBar.o,
+                  price.latestTrade.p
+                )
+              : 0,
+        })
+        .where("id", stock.id)
+    );
     console.log(
       stock.name,
       price.latestTrade.p,
