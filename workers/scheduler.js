@@ -10,6 +10,7 @@ const heroku = new Heroku({ token: process.env.HEROKU_API_TOKEN });
 const Knex = require("../helpers/knex");
 
 async function Scheduler() {
+  return true;
   try {
     var knex = await Knex();
 

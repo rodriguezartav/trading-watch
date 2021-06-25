@@ -6,6 +6,8 @@ require("dotenv").config();
 const moment = require("moment");
 const { isBetweenExtendedMarketHours } = require("../helpers/utils");
 const Knex = require("../helpers/knex");
+const Heroku = require("heroku-client");
+const heroku = new Heroku({ token: process.env.HEROKU_API_TOKEN });
 
 setInterval(async () => {
   try {
@@ -41,6 +43,24 @@ setInterval(async () => {
             })
             .returning("id");
 
+          await heroku.post("/apps/trading-watch/dynos", {
+            body: {
+              command: `node ./workers/_runner.js job_id=${job.id}`,
+              env: {
+                COLUMNS: "80",
+                LINES: "24",
+                SCRIPT_OPTIONS: JSON.stringify(job.script_options || {}),
+                TIME_TO_LIVE: job.time_to_live || 0,
+                JOB_ID: job.id,
+                SCRIPT: job.script_location,
+              },
+              force_no_tty: null,
+              size: "Hobby.",
+              type: "run",
+              time_to_live: job.time_to_live || 60 * 3,
+            },
+          });
+
           console.log(
             `API_EVENT:::JOB_CREATOR:::INSERT_JOB:::${JSON.stringify({
               job_id: ids[0],
@@ -61,48 +81,43 @@ setInterval(async () => {
 
 setInterval(async () => {
   try {
-    if (isBetweenExtendedMarketHours()) {
-      const knex = Knex();
+    const knex = Knex();
 
-      const jobs = await knex
-        .table("jobs")
-        .select("jobs.*", "scripts.name as script_name")
-        .join("scripts", "scripts.id", "jobs.script_id")
-        .whereIn("status", ["working"]);
+    const jobs = await knex
+      .table("jobs")
+      .select("jobs.*", "scripts.name as script_name")
+      .join("scripts", "scripts.id", "jobs.script_id")
+      .whereIn("status", ["working"]);
 
-      const lateJobs = jobs.filter((item) => {
-        if (
-          moment()
-            .add(job.period_in_minutes * 2, "minutes")
-            .isAfter(moment())
-        )
-          return true;
-        else return false;
-      });
+    const lateJobs = jobs.filter((item) => {
+      if (
+        moment()
+          .add(job.period_in_minutes * 2, "minutes")
+          .isAfter(moment())
+      )
+        return true;
+      else return false;
+    });
 
-      if (lateJobs.length > 0) {
-        const slack = await Slack();
+    if (lateJobs.length > 0) {
+      const slack = await Slack();
 
-        await Promise.all(
-          lateJobs.map((item) =>
-            knex.table("jobs").delete().where("id", item.id)
+      await Promise.all(
+        lateJobs.map((item) => knex.table("jobs").delete().where("id", item.id))
+      );
+
+      await slack.chat.postMessage({
+        text: `Some jobs seem to be stuck. (${lateJobs
+          .map(
+            (item) => `${item.script_name} ${moment(item.created_at).fromNow()}`
           )
-        );
-
-        await slack.chat.postMessage({
-          text: `Some jobs seem to be stuck. (${lateJobs
-            .map(
-              (item) =>
-                `${item.script_name} ${moment(item.created_at).fromNow()}`
-            )
-            .join("\n")} `,
-          channel: slack.generalChannelId,
-        });
-      }
+          .join("\n")} `,
+        channel: slack.generalChannelId,
+      });
     }
   } catch (e) {
     console.error("CRITICAL_ERROR");
     console.error(e);
     throw e;
   }
-}, 10000);
+}, 500);
