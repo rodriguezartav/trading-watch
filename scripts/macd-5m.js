@@ -7,7 +7,6 @@ const Slack = require("../helpers/slack");
 
 async function Run() {
   const knex = await Knex();
-  const slack = await Slack();
 
   const stocks = await knex.table("stocks").select();
   const stockMap = {};
@@ -77,11 +76,13 @@ async function Run() {
         )
         .toISOString();
 
-      if (stock.price_delta_5 > 1)
+      if (stock.price_delta_5 > 1) {
+        const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} increased ${stock.price_delta_5} % in the last 5 minutes`,
           channel: slack.generalChannelId,
         });
+      }
 
       results.push({ stock });
       return stock;

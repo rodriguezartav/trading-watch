@@ -9,7 +9,6 @@ isPreMarket = isPreMarket();
 
 async function Run() {
   const knex = await Knex();
-  const slack = await Slack();
 
   const stocks = await knex.table("stocks").select();
   const stockMap = {};
@@ -74,6 +73,7 @@ async function Run() {
           delta2 > delta3 &&
           delta3 > delta4)
       ) {
+        const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
           channel: slack.generalChannelId,
