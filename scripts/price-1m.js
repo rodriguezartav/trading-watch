@@ -34,39 +34,45 @@ async function Run() {
         timeframe: "1Min",
         start: moment()
           .utcOffset(-4)
-          .hour(9)
-          .minute(30)
+          .hour(4)
+          .minute(0)
           .format("YYYY-MM-DDTHH:mm:ss.00Z"),
         end: moment().format("YYYY-MM-DDTHH:mm:ss.00Z"),
       })
     ).body.bars;
 
+    const ratio = 5;
+    let prices5m = candles.filter(function (value, index, ar) {
+      return index % ratio == 0;
+    });
+
     let roc_5 = average(candles.slice(-15).map((item) => item.c));
 
     let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
-    let delta2 = priceDiff(
-      candles[candles.length - 2].o,
-      candles[candles.length - 1].o
-    );
-    let delta3 = priceDiff(
-      candles[candles.length - 3].o,
-      candles[candles.length - 2].o
-    );
-    let delta4 = priceDiff(
-      candles[candles.length - 4].o,
-      candles[candles.length - 3].o
-    );
 
-    if (delta1 > 0.4 || (delta1 > delta2 && delta2 > delta3 && delta3 > delta4))
-      await slack.chat.postMessage({
-        text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
-        channel: slack.generalChannelId,
-      });
+    if (candles.length > 4) {
+      let delta2 = priceDiff(
+        candles[candles.length - 2].o,
+        candles[candles.length - 1].o
+      );
+      let delta3 = priceDiff(
+        candles[candles.length - 3].o,
+        candles[candles.length - 2].o
+      );
+      let delta4 = priceDiff(
+        candles[candles.length - 4].o,
+        candles[candles.length - 3].o
+      );
 
-    const ratio = 5;
-    const prices5m = candles.filter(function (value, index, ar) {
-      return index % ratio == 0;
-    });
+      if (
+        delta1 > 0.4 ||
+        (delta1 > delta2 && delta2 > delta3 && delta3 > delta4)
+      )
+        await slack.chat.postMessage({
+          text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
+          channel: slack.generalChannelId,
+        });
+    }
 
     await knex
       .table("stocks")

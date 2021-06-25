@@ -38,8 +38,8 @@ function isPreMarket() {
 
 function isBetweenExtendedMarketHours() {
   return (
-    moment().isBefore(moment().utcOffset(-4).hour(20).minute(5)) &&
-    moment().isAfter(moment().utcOffset(-4).hour(4).minute(5))
+    moment().isAfter(moment().utcOffset(-4).hour(4).minute(5)) &&
+    moment().isBefore(moment().utcOffset(-4).hour(20).minute(5))
   );
 }
 
