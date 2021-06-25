@@ -31,7 +31,7 @@ async function Run() {
     const candles = (
       await Alpaca.data(`stocks/${stock.name}/bars`).query({
         timeframe: "1Min",
-        start: isPremarket
+        start: isPreMarket
           ? moment()
               .utcOffset(-4)
               .hour(4)
