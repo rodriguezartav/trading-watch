@@ -72,7 +72,7 @@ async function Run() {
       if (delta1 > 0.4) {
         const slack = await Slack();
         await slack.chat.postMessage({
-          text: `${stock.name} increased ${delta1} % in the last minute. So far today ${sotck.price_delta_d}`,
+          text: `${stock.name} increased ${delta1} % in the last minute. So far today ${stock.price_delta_d}`,
           channel: slack.generalChannelId,
         });
       }
