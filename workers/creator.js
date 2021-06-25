@@ -45,13 +45,13 @@ setInterval(async () => {
 
           await heroku.post("/apps/trading-watch/dynos", {
             body: {
-              command: `node ./workers/_runner.js job_id=${job.id}`,
+              command: `node ./workers/_runner.js job_id=${id[0]}`,
               env: {
                 COLUMNS: "80",
                 LINES: "24",
                 SCRIPT_OPTIONS: JSON.stringify(job.script_options || {}),
                 TIME_TO_LIVE: job.time_to_live || 0,
-                JOB_ID: job.id,
+                JOB_ID: ids[0],
                 SCRIPT: job.script_location,
               },
               force_no_tty: null,
