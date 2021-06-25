@@ -63,19 +63,26 @@ async function Run() {
         candles[candles.length - 3].o
       );
 
-      if (
-        delta1 > 0.4 ||
-        (delta1 > 0 &&
-          delta2 > 0 &&
-          delta3 > 0 &&
-          delta4 > 0 &&
-          delta1 > delta2 &&
-          delta2 > delta3 &&
-          delta3 > delta4)
-      ) {
+      if (delta1 > 0.4) {
         const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
+          channel: slack.generalChannelId,
+        });
+      }
+
+      if (
+        delta1 > 0 &&
+        delta2 > 0 &&
+        delta3 > 0 &&
+        delta4 > 0 &&
+        delta1 > delta2 &&
+        delta2 > delta3 &&
+        delta3 > delta4
+      ) {
+        const slack = await Slack();
+        await slack.chat.postMessage({
+          text: `${stock.name} price shear ${delta1} % [${delta4},${delta3},${delta2},${delta1}]`,
           channel: slack.generalChannelId,
         });
       }
