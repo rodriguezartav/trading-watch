@@ -29,12 +29,21 @@ async function Run() {
     const stock = stocks[index];
     const price = prices[stock.name];
     stock.price = price.latestTrade.p;
+    let firstTrade = stock.today_prices.split(",")[0];
+    if (firstTrade) firstTrade = parseFloat(firstTrade);
+
     promises.push(
       knex
         .table("stocks")
         .update({
           price: price.latestTrade.p,
-          price_delta_d: priceDiff(price.dailyBar.o, price.latestTrade.p),
+          price_delta_d:
+            isPreMarket() && firstTrade
+              ? priceDiff(
+                  isPreMarket() ? firstTrade : price.dailyBar.o,
+                  price.latestTrade.p
+                )
+              : 0,
         })
         .where("id", stock.id)
     );
