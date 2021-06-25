@@ -4,7 +4,7 @@
 
 require("dotenv").config();
 const moment = require("moment");
- 
+
 const Heroku = require("heroku-client");
 const heroku = new Heroku({ token: process.env.HEROKU_API_TOKEN });
 const Knex = require("../helpers/knex");
@@ -19,15 +19,12 @@ async function Scheduler() {
         "jobs.*",
         "scripts.name as script_name",
         "scripts.location as script_location",
-         "schedules.time_to_live"
+        "schedules.time_to_live"
       )
       .join("scripts", "scripts.id", "jobs.script_id")
       .join("schedules", "schedules.id", "jobs.schedule_id")
       .whereNotNull("scripts.location")
       .where("status", "pending");
-
- 
-  
 
     for (let index = 0; index < jobs.length; index++) {
       const job = jobs[index];
@@ -35,7 +32,7 @@ async function Scheduler() {
         console.log(
           `API_EVENT:::JOB_RUNNER:::START:::${JSON.stringify({
             script_location: job.script_location,
-             job_id: job.id,
+            job_id: job.id,
             time: moment().valueOf(),
           })}`
         );
@@ -54,11 +51,10 @@ async function Scheduler() {
             env: {
               COLUMNS: "80",
               LINES: "24",
-              SCRIPT_OPTIONS: JSON.stringify(job.script_options||{}),
+              SCRIPT_OPTIONS: JSON.stringify(job.script_options || {}),
               TIME_TO_LIVE: job.time_to_live || 0,
               JOB_ID: job.id,
               SCRIPT: job.script_location,
-              
             },
             force_no_tty: null,
             size: "Hobby.",
@@ -105,7 +101,6 @@ async function Scheduler() {
 }
 
 (async function () {
-
   try {
     setInterval(async () => {
       try {
@@ -114,12 +109,11 @@ async function Scheduler() {
         console.log(e);
         console.log("PROCESS_RUNNER ERROR");
       }
-    }, 25000);
+    }, 3000);
   } catch (e) {
     console.log("PROCESS_RUNNER CRITICAL_ERROR");
     console.error(e);
   }
 })();
-
 
 module.exports = Scheduler;

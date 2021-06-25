@@ -57,7 +57,7 @@ setInterval(async () => {
     console.error(e);
     throw e;
   }
-}, 20000);
+}, 1500);
 
 setInterval(async () => {
   try {
