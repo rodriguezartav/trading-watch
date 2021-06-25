@@ -58,21 +58,21 @@ async function Run() {
     if (candles.length > 4) {
       let delta2 = priceDiff(
         candles[candles.length - 2].o,
-        candles[candles.length - 1].o
+        candles[candles.length - 1].c
       );
       let delta3 = priceDiff(
         candles[candles.length - 3].o,
-        candles[candles.length - 2].o
+        candles[candles.length - 2].c
       );
       let delta4 = priceDiff(
         candles[candles.length - 4].o,
-        candles[candles.length - 3].o
+        candles[candles.length - 3].c
       );
 
       if (delta1 > 0.4) {
         const slack = await Slack();
         await slack.chat.postMessage({
-          text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
+          text: `${stock.name} increased ${delta1} % in the last minute. So far today ${sotck.price_delta_d}`,
           channel: slack.generalChannelId,
         });
       }
