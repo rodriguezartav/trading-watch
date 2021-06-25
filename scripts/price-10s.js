@@ -36,13 +36,12 @@ async function Run() {
         .update({
           last_price_update_at: moment().toISOString(),
           price: price.latestTrade.p,
-          price_delta_d:
-            isPreMarket() && firstTrade
-              ? priceDiff(
-                  isPreMarket() ? firstTrade : price.dailyBar.o,
-                  price.latestTrade.p
-                )
-              : 0,
+          price_delta_d: firstTrade
+            ? priceDiff(
+                isPreMarket() ? firstTrade : price.dailyBar.o,
+                price.latestTrade.p
+              )
+            : 0,
         })
         .where("id", stock.id)
     );
