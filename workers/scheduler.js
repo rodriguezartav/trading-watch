@@ -109,7 +109,7 @@ async function Scheduler() {
         console.log(e);
         console.log("PROCESS_RUNNER ERROR");
       }
-    }, 3000);
+    }, 1250);
   } catch (e) {
     console.log("PROCESS_RUNNER CRITICAL_ERROR");
     console.error(e);
