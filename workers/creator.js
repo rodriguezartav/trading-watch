@@ -96,7 +96,7 @@ setInterval(async () => {
 
     const lateJobs = jobs.filter((job) => {
       if (
-        moment()
+        moment(job.created_at)
           .add(job.period_in_minutes * 2, "minutes")
           .isAfter(moment())
       )
