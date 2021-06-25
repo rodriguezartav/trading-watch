@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 function delay(t, val) {
   return new Promise(function (resolve) {
     if (t <= 0) {
@@ -38,4 +40,5 @@ module.exports = {
   delay,
   priceDiff,
   average,
+  isPreMarket,
 };
