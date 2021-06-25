@@ -31,11 +31,17 @@ async function Run() {
     const candles = (
       await Alpaca.data(`stocks/${stock.name}/bars`).query({
         timeframe: "1Min",
-        start: moment()
-          .utcOffset(-4)
-          .hour(4)
-          .minute(0)
-          .format("YYYY-MM-DDTHH:mm:ss.00Z"),
+        start: isPremarket
+          ? moment()
+              .utcOffset(-4)
+              .hour(4)
+              .minute(0)
+              .format("YYYY-MM-DDTHH:mm:ss.00Z")
+          : moment()
+              .utcOffset(-4)
+              .hour(9)
+              .minute(30)
+              .format("YYYY-MM-DDTHH:mm:ss.00Z"),
         end: moment().format("YYYY-MM-DDTHH:mm:ss.00Z"),
       })
     ).body.bars;
