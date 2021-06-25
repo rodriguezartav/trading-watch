@@ -41,11 +41,15 @@ async function Run() {
   });
 
   setInterval(async () => {
-    stocks = await knex.table("stocks").select();
-    stocks.forEach((item) => {
-      stockMap[item.name] = item;
-      tradesTimes[item.name] = tradesTimes[item.name] || moment();
-    });
+    try {
+      stocks = await knex.table("stocks").select();
+      stocks.forEach((item) => {
+        stockMap[item.name] = item;
+        tradesTimes[item.name] = tradesTimes[item.name] || moment();
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }, 30000);
 
   socket.onConnect(function () {

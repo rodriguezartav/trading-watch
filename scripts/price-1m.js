@@ -10,6 +10,13 @@ isPreMarket = isPreMarket();
 async function Run() {
   const knex = await Knex();
 
+  process.on("exit", async (code) => {
+    console.log("disconnecting");
+    await knex.destroy();
+    //uncaughtException;
+    //unhandledRejection;
+  });
+
   const stocks = await knex.table("stocks").select();
   const stockMap = {};
   stocks.forEach((item) => {
