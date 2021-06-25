@@ -13,7 +13,10 @@ setInterval(async () => {
   try {
     const knex = Knex();
 
-    let schedules = await knex.table("schedules").select();
+    let schedules = await knex
+      .table("schedules")
+      .select("schedules.*", "script.location as script_location")
+      .join("scripts", "script.id", "schedules.script_id");
     for (let index = 0; index < schedules.length; index++) {
       const schedule = schedules[index];
 
@@ -43,6 +46,8 @@ setInterval(async () => {
             })
             .returning("id");
 
+          console.log(ids);
+
           await heroku.post("/apps/trading-watch/dynos", {
             body: {
               command: `node ./workers/_runner.js job_id=${ids[0]}`,
@@ -52,7 +57,7 @@ setInterval(async () => {
                 SCRIPT_OPTIONS: JSON.stringify(schedule.script_options || {}),
                 TIME_TO_LIVE: schedule.time_to_live || 0,
                 JOB_ID: ids[0],
-                SCRIPT: script.location,
+                SCRIPT: schedule.script_location,
               },
               force_no_tty: null,
               size: "Hobby.",
