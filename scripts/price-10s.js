@@ -34,8 +34,10 @@ async function Run() {
       knex
         .table("stocks")
         .update({
+          price_today_open:
+            isPreMarket && firstTrade ? firstTrade : price.minuteBar.o,
           last_price_update_at: moment().toISOString(),
-          price: price.latestTrade.p,
+          price: parseInt(price.latestTrade.p * 100) / 100,
           price_delta_d: firstTrade
             ? priceDiff(
                 isPreMarket() ? firstTrade : price.dailyBar.o,
@@ -45,11 +47,7 @@ async function Run() {
         })
         .where("id", stock.id)
     );
-    console.log(
-      stock.name,
-      price.latestTrade.p,
-      priceDiff(price.dailyBar.o, price.latestTrade.p)
-    );
+
     index++;
   }
 
