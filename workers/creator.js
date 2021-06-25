@@ -71,13 +71,23 @@ setInterval(async () => {
         .whereIn("status", ["working"]);
 
       const lateJobs = jobs.filter((item) => {
-        if (Math.abs(moment(item.created_at).diff(moment(), "minutes")) > 30)
+        if (
+          moment()
+            .add(job.period_in_minutes * 2, "minutes")
+            .isAfter(moment())
+        )
           return true;
         else return false;
       });
 
       if (lateJobs.length > 0) {
         const slack = await Slack();
+
+        await Promise.all(
+          lateJobs.map((item) =>
+            knex.table("jobs").delete().where("id", item.id)
+          )
+        );
 
         await slack.chat.postMessage({
           text: `Some jobs seem to be stuck. (${lateJobs
@@ -95,4 +105,4 @@ setInterval(async () => {
     console.error(e);
     throw e;
   }
-}, 60000 * 5);
+}, 10000);
