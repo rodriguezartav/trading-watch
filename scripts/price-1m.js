@@ -66,12 +66,19 @@ async function Run() {
 
       if (
         delta1 > 0.4 ||
-        (delta1 > delta2 && delta2 > delta3 && delta3 > delta4)
-      )
+        (delta1 > 0 &&
+          delta2 > 0 &&
+          delta3 > 0 &&
+          delta4 > 0 &&
+          delta1 > delta2 &&
+          delta2 > delta3 &&
+          delta3 > delta4)
+      ) {
         await slack.chat.postMessage({
           text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
           channel: slack.generalChannelId,
         });
+      }
     }
 
     await knex

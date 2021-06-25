@@ -26,7 +26,7 @@ async function Run() {
         "technicalIndicator",
         stock.name,
         "D",
-        moment().add(-60, "days").unix(),
+        moment().add(-120, "days").unix(),
         moment().unix(),
         "macd",
         {}
@@ -50,7 +50,7 @@ async function Run() {
       stock.macd_d_last_cross = moment
         .unix(
           macdChangeIndex == -1
-            ? moment("2020-01-01").unix()
+            ? moment().add(-90, "days").unix()
             : macd_d.t[macdChangeIndex]
         )
         .toISOString();
