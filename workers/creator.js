@@ -45,7 +45,7 @@ setInterval(async () => {
 
           await heroku.post("/apps/trading-watch/dynos", {
             body: {
-              command: `node ./workers/_runner.js job_id=${id[0]}`,
+              command: `node ./workers/_runner.js job_id=${ids[0]}`,
               env: {
                 COLUMNS: "80",
                 LINES: "24",
@@ -87,7 +87,7 @@ setInterval(async () => {
       .table("jobs")
       .select("jobs.*", "scripts.name as script_name")
       .join("scripts", "scripts.id", "jobs.script_id")
-      .whereIn("status", ["working"]);
+      .whereIn("status", ["pending", "working"]);
 
     const lateJobs = jobs.filter((item) => {
       if (
