@@ -16,7 +16,7 @@ setInterval(async () => {
     let schedules = await knex
       .table("schedules")
       .select("schedules.*", "scripts.location as script_location")
-      .join("scripts", "script.id", "schedules.script_id");
+      .join("scripts", "scripts.id", "schedules.script_id");
     for (let index = 0; index < schedules.length; index++) {
       const schedule = schedules[index];
 
