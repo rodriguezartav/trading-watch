@@ -89,7 +89,7 @@ setInterval(async () => {
       .join("scripts", "scripts.id", "jobs.script_id")
       .whereIn("status", ["pending", "working"]);
 
-    const lateJobs = jobs.filter((item) => {
+    const lateJobs = jobs.filter((job) => {
       if (
         moment()
           .add(job.period_in_minutes * 2, "minutes")
