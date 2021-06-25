@@ -61,31 +61,34 @@ setInterval(async () => {
 
 setInterval(async () => {
   try {
-    const knex = Knex();
+    if (moment().isBefore(moment().utcOffset(-4).hour(20).minute(0))) {
+      const knex = Knex();
 
-    const jobs = await knex
-      .table("jobs")
-      .select("jobs.*", "scripts.name as script_name")
-      .join("scripts", "scripts.id", "jobs.script_id")
-      .whereIn("status", ["working"]);
+      const jobs = await knex
+        .table("jobs")
+        .select("jobs.*", "scripts.name as script_name")
+        .join("scripts", "scripts.id", "jobs.script_id")
+        .whereIn("status", ["working"]);
 
-    const lateJobs = jobs.filter((item) => {
-      if (Math.abs(moment(item.created_at).diff(moment(), "minutes")) > 30)
-        return true;
-      else return false;
-    });
-
-    if (lateJobs.length > 0) {
-      const slack = await Slack();
-
-      await slack.chat.postMessage({
-        text: `Some jobs seem to be stuck. (${lateJobs
-          .map(
-            (item) => `${item.script_name} ${moment(item.created_at).fromNow()}`
-          )
-          .join("\n")} `,
-        channel: slack.generalChannelId,
+      const lateJobs = jobs.filter((item) => {
+        if (Math.abs(moment(item.created_at).diff(moment(), "minutes")) > 30)
+          return true;
+        else return false;
       });
+
+      if (lateJobs.length > 0) {
+        const slack = await Slack();
+
+        await slack.chat.postMessage({
+          text: `Some jobs seem to be stuck. (${lateJobs
+            .map(
+              (item) =>
+                `${item.script_name} ${moment(item.created_at).fromNow()}`
+            )
+            .join("\n")} `,
+          channel: slack.generalChannelId,
+        });
+      }
     }
   } catch (e) {
     console.error("CRITICAL_ERROR");

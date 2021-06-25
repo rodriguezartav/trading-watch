@@ -104,7 +104,8 @@ async function Scheduler() {
   try {
     setInterval(async () => {
       try {
-        await Scheduler();
+        if (moment().isBefore(moment().utcOffset(-4).hour(20).minute(5)))
+          await Scheduler();
       } catch (e) {
         console.log(e);
         console.log("PROCESS_RUNNER ERROR");

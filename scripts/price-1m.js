@@ -28,7 +28,6 @@ async function Run() {
   while (index < stocks.length) {
     const stock = stocks[index];
     const price = prices[stock.name];
-    const createdAt = moment(price.latestTrade.t).toISOString();
 
     const candles = (
       await Alpaca.data(`stocks/${stock.name}/bars`).query({
@@ -60,7 +59,7 @@ async function Run() {
 
     if (delta1 > 0.4 || (delta1 > delta2 && delta2 > delta3 && delta3 > delta4))
       await slack.chat.postMessage({
-        text: `${stock.name} increased ${delta1} % in the last 1 minute. [${delta2},${delta3},${delta4}]`,
+        text: `${stock.name} increased ${delta1} % in the last minute. [${delta4},${delta3},${delta2},${delta1}]`,
         channel: slack.generalChannelId,
       });
 
