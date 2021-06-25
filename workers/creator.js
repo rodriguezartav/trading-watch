@@ -4,7 +4,7 @@
 
 require("dotenv").config();
 const moment = require("moment");
-
+const { isBetweenExtendedMarketHours } = require("../helpers/utils");
 const Knex = require("../helpers/knex");
 
 setInterval(async () => {
@@ -61,7 +61,7 @@ setInterval(async () => {
 
 setInterval(async () => {
   try {
-    if (moment().isBefore(moment().utcOffset(-4).hour(20).minute(0))) {
+    if (isBetweenExtendedMarketHours()) {
       const knex = Knex();
 
       const jobs = await knex

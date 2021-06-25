@@ -42,7 +42,7 @@ async function Run() {
     ).body.bars;
 
     let roc_5 = average(candles.slice(-15).map((item) => item.c));
-    let deltaD = priceDiff(price.dailyBar.o, price.latestTrade.p);
+
     let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
     let delta2 = priceDiff(
       candles[candles.length - 2].o,
@@ -73,7 +73,6 @@ async function Run() {
       .update({
         roc_5: isPreMarket ? 0 : roc_5,
         price_delta_1: isPreMarket ? 0 : delta1,
-        price_delta_d: isPreMarket ? 0 : deltaD,
         today_prices: prices5m.map((item) => item.c).join(","),
       })
       .where("id", stock.id);

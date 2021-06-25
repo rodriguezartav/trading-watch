@@ -4,7 +4,7 @@
 
 require("dotenv").config();
 const moment = require("moment");
-
+const { isBetweenExtendedMarketHours } = require("../helpers/utils");
 const Heroku = require("heroku-client");
 const heroku = new Heroku({ token: process.env.HEROKU_API_TOKEN });
 const Knex = require("../helpers/knex");
@@ -104,8 +104,7 @@ async function Scheduler() {
   try {
     setInterval(async () => {
       try {
-        if (moment().isBefore(moment().utcOffset(-4).hour(20).minute(5)))
-          await Scheduler();
+        if (isBetweenExtendedMarketHours()) await Scheduler();
       } catch (e) {
         console.log(e);
         console.log("PROCESS_RUNNER ERROR");

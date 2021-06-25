@@ -22,64 +22,42 @@ async function Run() {
       // no delay on first iteration
       var delayT = index ? index * 50 : 1;
 
-      const rsi_5 = await FinHub(
+      const macd_d = await FinHub(
         "technicalIndicator",
         stock.name,
-        "5",
-        moment().add(-1, "days").unix(),
-        moment().unix(),
-        "rsi",
-        {}
-      );
-
-      const macd_5 = await FinHub(
-        "technicalIndicator",
-        stock.name,
-        "5",
-        moment().add(-1, "days").unix(),
+        "D",
+        moment().add(-60, "days").unix(),
         moment().unix(),
         "macd",
         {}
       );
 
-      const lastIndex5 = macd_5.t.length - 1;
+      const lastIndex = macd_d.t.length - 1;
 
-      const currentHigh = macd_5.h[lastIndex5];
-      const currentOpen = macd_5.o[lastIndex5];
-      const currentClose = macd_5.c[lastIndex5];
+      const currentHigh = macd_d.h[lastIndex];
+      const currentOpen = macd_d.o[lastIndex];
+      const currentClose = macd_d.c[lastIndex];
 
-      const high30 = macd_5.h[lastIndex5 - 6];
-      const open30 = macd_5.o[lastIndex5 - 6];
-      const close30 = macd_5.c[lastIndex5 - 6];
-
-      const high90 = macd_5.h[lastIndex5 - 18];
-      const open90 = macd_5.o[lastIndex5 - 18];
-      const close90 = macd_5.c[lastIndex5 - 18];
-
-      stock.price_delta_5 = priceDiff(currentOpen, currentClose);
-      stock.price_delta_30 = priceDiff(open30, currentClose);
-      stock.price_delta_90 = priceDiff(open90, currentClose);
-      stock.macd_5_hist = macd_5.macdHist[lastIndex5];
-      stock.rsi_5 = rsi_5.rsi[lastIndex5];
+      stock.macd_d_hist = macd_d.macdHist[lastIndex];
 
       let macdChangeIndex = -1;
-      macd_5.macdHist.forEach((macd, index) => {
+      macd_d.macdHist.forEach((macd, index) => {
         if (index == 0) return;
-        const lastMacd = macd_5.macdHist[index - 1];
+        const lastMacd = macd_d.macdHist[index - 1];
         if (macd > 0 && lastMacd < 0) macdChangeIndex = index;
         else if (macd < 0 && lastMacd > 0) macdChangeIndex = index;
       });
-      stock.macd_5_last_cross = moment
+      stock.macd_d_last_cross = moment
         .unix(
           macdChangeIndex == -1
             ? moment("2020-01-01").unix()
-            : macd_5.t[macdChangeIndex]
+            : macd_d.t[macdChangeIndex]
         )
         .toISOString();
 
-      if (stock.price_delta_5 > 1)
+      if (Math.abs(stock.price_delta_d) > 2)
         await slack.chat.postMessage({
-          text: `${stock.name} increased ${stock.price_delta_5} % in the last 5 minutes`,
+          text: `${stock.name} changed ${stock.price_delta_d} % in the last day`,
           channel: slack.generalChannelId,
         });
 

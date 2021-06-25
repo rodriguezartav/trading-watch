@@ -34,10 +34,15 @@ async function Run() {
         .table("stocks")
         .update({
           price: price.latestTrade.p,
+          price_delta_d: priceDiff(price.dailyBar.o, price.latestTrade.p),
         })
         .where("id", stock.id)
     );
-    console.log(stock.name, price.latestTrade.p);
+    console.log(
+      stock.name,
+      price.latestTrade.p,
+      priceDiff(price.dailyBar.o, price.latestTrade.p)
+    );
     index++;
   }
 
