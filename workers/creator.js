@@ -49,15 +49,15 @@ setInterval(async () => {
               env: {
                 COLUMNS: "80",
                 LINES: "24",
-                SCRIPT_OPTIONS: JSON.stringify(job.script_options || {}),
-                TIME_TO_LIVE: job.time_to_live || 0,
+                SCRIPT_OPTIONS: JSON.stringify(schedule.script_options || {}),
+                TIME_TO_LIVE: schedule.time_to_live || 0,
                 JOB_ID: ids[0],
-                SCRIPT: job.script_location,
+                SCRIPT: script.location,
               },
               force_no_tty: null,
               size: "Hobby.",
               type: "run",
-              time_to_live: job.time_to_live || 60 * 3,
+              time_to_live: schedule.time_to_live || 60 * 3,
             },
           });
 
