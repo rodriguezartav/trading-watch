@@ -37,6 +37,7 @@ async function Run() {
         })
         .where("id", stock.id)
     );
+    console.log(stock.name, price.latestTrade.p);
     index++;
   }
 
