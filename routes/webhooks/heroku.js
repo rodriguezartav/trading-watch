@@ -58,8 +58,8 @@ router.post("/", async function (req, res, next) {
       await knex.table("jobs").delete().where("id", jobId);
       if (job)
         await slack.chat.postMessage({
-          text: `Error in Job id ${jobId} for script ${job.script_location} https://my.papertrailapp.com/events?q=${name}`,
-          link: `https://my.papertrailapp.com/events?q=${name}`,
+          text: `Error in Job id ${jobId} for script ${job.script_location} ${process.env.PAPER_TRAIL_LINK}?q=${name}`,
+          link: `${process.env.PAPER_TRAIL_LINK}?q=${name}`,
           channel: slack.generalChannelId,
         });
 
