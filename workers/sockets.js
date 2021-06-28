@@ -4,10 +4,6 @@ const Knex = require("../helpers/knex");
 const { priceDiff } = require("../helpers/utils");
 
 var WebSocketServer = require("ws").Server;
-var http = require("http");
-var express = require("express");
-var app = express();
-var port = process.env.PORT || 5000;
 
 const Alpaca = require("@alpacahq/alpaca-trade-api");
 const API_KEY = process.env.APCA_API_KEY_ID;
@@ -19,38 +15,55 @@ const alpaca = new Alpaca({
   feed: "sip",
 });
 
-async function Run() {
-  const knex = Knex();
+const knex = Knex();
+let trades = {};
+let tradesTimes = {};
+let stocks = [];
+let stockMap = {};
 
-  process.on("exit", async (code) => {
-    console.log("disconnecting");
-    await knex.destroy();
-    //uncaughtException;
-    //unhandledRejection;
+process.on("exit", async (code) => {
+  console.log("disconnecting");
+  await knex.destroy();
+  //uncaughtException;
+  //unhandledRejection;
+});
+
+setInterval(async () => {
+  try {
+    stocks = await knex.table("stocks").select();
+    stocks.forEach((item) => {
+      stockMap[item.name] = item;
+      tradesTimes[item.name] = tradesTimes[item.name] || moment();
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}, 30000);
+
+module.exports = function Sockets(server) {
+  //
+  Run();
+
+  var wss = new WebSocketServer({ server: server });
+  console.log("websocket server created");
+
+  wss.on("connection", function (ws) {
+    console.log("websocket connection open");
+
+    const id = setInterval(() => {
+      trades.time = moment().utcOffset(-4).toISOString();
+      ws.send(JSON.stringify(trades), function () {});
+    }, 1000);
+
+    ws.on("close", function () {
+      console.log("websocket connection close");
+      clearInterval(id);
+    });
   });
+};
 
+function Run() {
   const socket = alpaca.data_stream_v2;
-  let stocks = await knex.table("stocks").select();
-  let stockMap = {};
-
-  let trades = {};
-  let tradesTimes = {};
-  stocks.forEach((item) => {
-    stockMap[item.name] = item;
-    tradesTimes[item.name] = moment();
-  });
-
-  setInterval(async () => {
-    try {
-      stocks = await knex.table("stocks").select();
-      stocks.forEach((item) => {
-        stockMap[item.name] = item;
-        tradesTimes[item.name] = tradesTimes[item.name] || moment();
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  }, 30000);
 
   socket.onConnect(function () {
     console.log("Connected");
@@ -81,30 +94,6 @@ async function Run() {
   });
 
   socket.connect();
-
-  app.use(express.static(__dirname + "/"));
-
-  var server = http.createServer(app);
-  server.listen(port);
-  //
-  console.log("http server listening on %d", port);
-
-  var wss = new WebSocketServer({ server: server });
-  console.log("websocket server created");
-
-  wss.on("connection", function (ws) {
-    console.log("websocket connection open");
-
-    const id = setInterval(() => {
-      trades.time = moment().utcOffset(-4).toISOString();
-      ws.send(JSON.stringify(trades), function () {});
-    }, 1000);
-
-    ws.on("close", function () {
-      console.log("websocket connection close");
-      clearInterval(id);
-    });
-  });
 }
 
-Run();
+if (process.env.LOCAL) Run();
