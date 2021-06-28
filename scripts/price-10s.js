@@ -40,7 +40,7 @@ async function Run() {
         .table("stocks")
         .update({
           price_today_open:
-            isPreMarket() && firstTrade ? firstTrade : price.minuteBar.o,
+            isPreMarket() && firstTrade ? firstTrade : price.dailyBar.o,
           last_price_update_at: moment().toISOString(),
           price: parseInt(price.latestTrade.p * 100) / 100,
           price_delta_d: firstTrade
