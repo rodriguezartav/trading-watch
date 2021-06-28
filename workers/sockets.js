@@ -28,7 +28,7 @@ process.on("exit", async (code) => {
   //unhandledRejection;
 });
 
-setInterval(async () => {
+async function loadStocks() {
   try {
     stocks = await knex.table("stocks").select();
     stocks.forEach((item) => {
@@ -38,11 +38,14 @@ setInterval(async () => {
   } catch (e) {
     console.error(e);
   }
+}
+
+setInterval(async () => {
+  await loadStocks();
 }, 30000);
 
 module.exports = function Sockets(server) {
   //
-  Run();
 
   var wss = new WebSocketServer({ server: server });
   console.log("websocket server created");
@@ -60,6 +63,8 @@ module.exports = function Sockets(server) {
       clearInterval(id);
     });
   });
+
+  Run();
 };
 
 function Run() {
@@ -93,7 +98,9 @@ function Run() {
     }
   });
 
-  socket.connect();
+  loadStocks().then(() => {
+    socket.connect();
+  });
 }
 
 if (process.env.LOCAL) Run();

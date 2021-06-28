@@ -65,7 +65,7 @@ async function Run() {
         const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} changed ${stock.price_delta_d} % in the last day`,
-          channel: slack.generalChannelId,
+          channel: slack.channelsMap["stocks"].id,
         });
       }
 

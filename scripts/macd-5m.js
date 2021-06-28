@@ -46,6 +46,10 @@ async function Run() {
         {}
       );
 
+      if (!macd_5.t) {
+        console.log("NOTICE", stock.name, "has no macd5 data");
+        return stock;
+      }
       const lastIndex5 = macd_5.t.length - 1;
 
       const currentHigh = macd_5.h[lastIndex5];
@@ -85,7 +89,7 @@ async function Run() {
         const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} increased ${stock.price_delta_5} % in the last 5 minutes`,
-          channel: slack.generalChannelId,
+          channel: slack.channelsMap["stocks"].id,
         });
       }
 

@@ -80,7 +80,7 @@ async function Run() {
         const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} increased ${delta1} % in the last minute. So far today ${stock.price_delta_d}`,
-          channel: slack.generalChannelId,
+          channel: slack.channelsMap["stocks"].id,
         });
       }
 
@@ -96,7 +96,7 @@ async function Run() {
         const slack = await Slack();
         await slack.chat.postMessage({
           text: `${stock.name} price shear ${delta1} % [${delta4},${delta3},${delta2},${delta1}]`,
-          channel: slack.generalChannelId,
+          channel: slack.channelsMap["stocks"].id,
         });
       }
     }
