@@ -29,70 +29,43 @@ async function Run() {
       // no delay on first iteration
       var delayT = index ? index * 50 : 1;
 
-      const macd_d = await FinHub(
+      const macd_30 = await FinHub(
         "technicalIndicator",
         stock.name,
-        "D",
-        moment().add(-120, "days").unix(),
+        "30",
+        moment().add(-40, "days").unix(),
         moment().unix(),
         "macd",
         {}
       );
 
-      const rsi_d = await FinHub(
+      const rsi_30 = await FinHub(
         "technicalIndicator",
         stock.name,
-        "D",
-        moment().add(-120, "days").unix(),
+        "30",
+        moment().add(-40, "days").unix(),
         moment().unix(),
         "rsi",
         { timeperiod: 14 }
       );
 
-      const ema_d_50 = await FinHub.Indicator(
-        stock.name,
-        "ema",
-        "D",
-        moment().add(-120, "days").unix(),
-        moment().unix(),
+      const lastIndex = macd_30.t.length - 1;
 
-        { timeperiod: 50 }
-      );
-
-      const ema_d_200 = await FinHub.Indicator(
-        stock.name,
-        "ema",
-        "D",
-        moment().add(-320, "days").unix(),
-        moment().unix(),
-
-        { timeperiod: 200 }
-      );
-
-      const lastIndex = macd_d.t.length - 1;
-
-      stock.price_delta_2d = priceDiff(
-        macd_d.o[lastIndex - 1],
-        macd_d.o[lastIndex]
-      );
-
-      stock.macd_d_hist = macd_d.macdHist[lastIndex];
-      stock.rsi_d = rsi_d.rsi[lastIndex];
-      stock.ema_d_200 = ema_d_200.ema[ema_d_200.ema.length - 1];
-      stock.ema_d_50 = ema_d_50.ema[ema_d_50.ema.length - 1];
+      stock.macd_30_hist = macd_30.macdHist[lastIndex];
+      stock.rsi_30 = rsi_30.rsi[lastIndex];
 
       let macdChangeIndex = -1;
-      macd_d.macdHist.forEach((macd, index) => {
+      macd_30.macdHist.forEach((macd, index) => {
         if (index == 0) return;
-        const lastMacd = macd_d.macdHist[index - 1];
+        const lastMacd = macd_30.macdHist[index - 1];
         if (macd > 0.001 && lastMacd < 0.001) macdChangeIndex = index;
         else if (macd < 0.001 && lastMacd > 0.001) macdChangeIndex = index;
       });
-      stock.macd_d_last_cross = moment
+      stock.macd_30_last_cross = moment
         .unix(
           macdChangeIndex == -1
             ? moment().add(-120, "days").unix()
-            : macd_d.t[macdChangeIndex]
+            : macd_30.t[macdChangeIndex]
         )
         .toISOString();
 

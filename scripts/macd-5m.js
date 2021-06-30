@@ -67,7 +67,7 @@ async function Run() {
       stock.price_delta_5 = priceDiff(currentOpen, currentClose);
       stock.price_delta_30 = priceDiff(open30, currentClose);
       stock.price_delta_90 = priceDiff(open90, currentClose);
-      stock.macd_5_hist = macd_5.macdHist[lastIndex5];
+      // stock.macd_5_hist = macd_5.macdHist[lastIndex5];
       stock.rsi_5 = rsi_5.rsi[lastIndex5];
 
       let macdChangeIndex = -1;
@@ -77,6 +77,7 @@ async function Run() {
         if (macd > 0 && lastMacd < 0) macdChangeIndex = index;
         else if (macd < 0 && lastMacd > 0) macdChangeIndex = index;
       });
+
       stock.macd_5_last_cross = moment
         .unix(
           macdChangeIndex == -1

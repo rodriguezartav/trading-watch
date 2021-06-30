@@ -13,8 +13,6 @@ async function Run() {
   process.on("exit", async (code) => {
     console.log("disconnecting");
     await knex.destroy();
-    //uncaughtException;
-    //unhandledRejection;
   });
 
   const stocks = await knex.table("stocks").select();
@@ -62,50 +60,39 @@ async function Run() {
 
     let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
 
-    if (candles.length > 4) {
-      let delta2 = priceDiff(
-        candles[candles.length - 2].o,
-        candles[candles.length - 1].c
-      );
-      let delta3 = priceDiff(
-        candles[candles.length - 3].o,
-        candles[candles.length - 2].c
-      );
-      let delta4 = priceDiff(
-        candles[candles.length - 4].o,
-        candles[candles.length - 3].c
-      );
+    const p_2 = candles[candles.length - 2];
+    const p_3 = candles[candles.length - 3];
+    const p_4 = candles[candles.length - 4];
+    const p_5 = candles[candles.length - 5];
 
-      if (delta1 > 0.4) {
-        const slack = await Slack();
-        await slack.chat.postMessage({
-          text: `${stock.name} increased ${delta1} % in the last minute. So far today ${stock.price_delta_d}`,
-          channel: slack.channelsMap["stocks"].id,
-        });
-      }
+    let delta5 = p_5 && priceDiff(p_5.o, p_5.h);
+    let delta4 = p_4 && priceDiff(p_4.o, p_4.h);
+    let delta3 = p_3 && priceDiff(p_3.o, p_3.h);
+    let delta2 = p_2 && priceDiff(p_2.o, p_2.h);
 
-      if (
-        delta1 > 0 &&
-        delta2 > 0 &&
-        delta3 > 0 &&
-        delta4 > 0 &&
-        delta1 > delta2 &&
-        delta2 > delta3 &&
-        delta3 > delta4
-      ) {
-        const slack = await Slack();
-        await slack.chat.postMessage({
-          text: `${stock.name} price shear ${delta1} % [${delta4},${delta3},${delta2},${delta1}]`,
-          channel: slack.channelsMap["stocks"].id,
-        });
-      }
+    let delta30 =
+      candles.length > 30 &&
+      priceDiff(candles[candles.length - 30].o, price.latestTrade.p);
+
+    let delta90 =
+      candles.length > 90 &&
+      priceDiff(candles[candles.length - 90].o, price.latestTrade.p);
+
+    if (delta1 > 0.4) {
+      const slack = await Slack();
+      await slack.chat.postMessage({
+        text: `${stock.name} increased ${delta1} % in the last minute. So far today ${stock.price_delta_d}`,
+        channel: slack.channelsMap["stocks"].id,
+      });
     }
 
     await knex
       .table("stocks")
       .update({
-        roc_5: isPreMarket ? 0 : roc_5,
         price_delta_1: isPreMarket ? 0 : delta1,
+        price_delta_5: isPreMarket ? 0 : delta5,
+        price_delta_30: isPreMarket ? 0 : delta30,
+        price_delta_90: isPreMarket ? 0 : delta90,
         today_prices: prices5m.map((item) => item.c).join(","),
       })
       .where("id", stock.id);
