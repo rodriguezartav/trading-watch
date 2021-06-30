@@ -89,10 +89,10 @@ async function Run() {
     await knex
       .table("stocks")
       .update({
-        price_delta_1: isPreMarket ? 0 : delta1,
-        price_delta_5: isPreMarket ? 0 : delta5,
-        price_delta_30: isPreMarket ? 0 : delta30,
-        price_delta_90: isPreMarket ? 0 : delta90,
+        price_delta_1: isPreMarket || !delta1 ? 0 : delta1,
+        price_delta_5: isPreMarket || !delta5 ? 0 : delta5,
+        price_delta_30: isPreMarket || !delta30 ? 0 : delta30,
+        price_delta_90: isPreMarket || !delta90 ? 0 : delta90,
         today_prices: prices5m.map((item) => item.c).join(","),
       })
       .where("id", stock.id);
