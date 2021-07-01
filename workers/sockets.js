@@ -25,8 +25,6 @@ let orders = [];
 process.on("exit", async (code) => {
   console.log("disconnecting");
   await knex.destroy();
-  //uncaughtException;
-  //unhandledRejection;
 });
 
 async function loadStocks() {
@@ -41,9 +39,21 @@ async function loadStocks() {
   }
 }
 
+async function loadOrders() {
+  try {
+    orders = await knex.table("orders").select();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 setInterval(async () => {
   await loadStocks();
 }, 30000);
+
+setInterval(async () => {
+  await loadOrders();
+}, 10000);
 
 module.exports = function Sockets(server) {
   //
