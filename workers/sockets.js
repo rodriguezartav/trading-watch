@@ -103,7 +103,7 @@ function Run() {
     );
 
     const todayPrices = stock.today_prices.split(",");
-    const minutePrice = today_prices[today_prices.length - 1];
+    const minutePrice = todayPrices[todayPrices.length - 1];
 
     if (pricesDiff(minutePrice, trade.Price) > 0.4) {
       await knex.table("orders").insert({
