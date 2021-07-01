@@ -99,11 +99,11 @@ async function Run() {
       .table("stocks")
       .update({
         roc_5,
-        price_today_open: prices5m[0] || 0,
-        price_delta_1: isPreMarket || !delta1 ? 0 : delta1,
-        price_delta_5: isPreMarket || !delta5 ? 0 : delta5,
-        price_delta_30: isPreMarket || !delta30 ? 0 : delta30,
-        price_delta_90: isPreMarket || !delta90 ? 0 : delta90,
+        price_today_open: prices5m[0] ? prices5m[0].c : 0,
+        price_delta_1: delta1 || 0,
+        price_delta_5: delta5 || 0,
+        price_delta_30: delta30 || 0,
+        price_delta_90: delta90 || 0,
         today_prices: prices5m.map((item) => item.c).join(","),
         minute_prices_deltas: minute_prices_deltas,
       })
