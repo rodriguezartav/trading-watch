@@ -46,7 +46,7 @@ async function loadOrders() {
     await knex
       .table("orders")
       .delete()
-      .where("updated_at", "<", moment().add(-10, "min").toISOString());
+      .where("updated_at", "<", moment().add(-10, "m").toISOString());
     orders = await knex.table("orders").select();
   } catch (e) {
     console.error(e);
