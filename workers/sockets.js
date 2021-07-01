@@ -51,7 +51,7 @@ async function loadOrders() {
 
 setInterval(async () => {
   await loadStocks();
-}, 30000);
+}, 10000);
 
 setInterval(async () => {
   await loadOrders();
