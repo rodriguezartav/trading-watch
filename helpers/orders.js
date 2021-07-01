@@ -17,12 +17,18 @@ module.exports = {
       await knex.table("orders").insert({
         stock_id: stock.id,
         reason: reason,
-        status: "PEMDING",
+        status: "pending",
         log: { try: 1 },
         description: description,
         type: type,
         price_limit: price,
         external_id: stock.name + "-" + parseInt(Math.random() * 100000),
+      });
+
+      const slack = await Slack();
+      await slack.chat.postMessage({
+        text: description,
+        channel: slack.channelsMap["stocks"].id,
       });
     } else
       await knex.table("orders").update({
@@ -33,12 +39,6 @@ module.exports = {
         type: type,
         price_limit: price,
       });
-
-    const slack = await Slack();
-    await slack.chat.postMessage({
-      text: description,
-      channel: slack.channelsMap["stocks"].id,
-    });
   },
   executeOrder: async function () {
     const knex = await Knex();
