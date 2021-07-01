@@ -105,21 +105,23 @@ function Run() {
         lastTradeTime.diff(moment(trade.Timestamp), "second")
       );
 
-      const todayPrices = stock.today_prices.split(",");
-      const minutePrice = todayPrices[todayPrices.length - 1];
-      let delta1 = priceDiff(minutePrice, trade.Price);
-
-      console.log(minutePrice);
-      if (Math.abs(delta1) > 0.4) {
-        await Orders.createOrder(
-          stock,
-          delta1 > 0 ? "LONG" : "SHORT",
-          trade.Price,
-          `Price ${delta1}%`,
-          `${stock.name} ${delta1} ${delta1 > 0 ? "LONG" : "SHORT"} in 1 minute`
-        );
-      }
       if (diff > 1) {
+        const todayPrices = stock.today_prices.split(",");
+        const minutePrice = todayPrices[todayPrices.length - 1];
+        let delta1 = priceDiff(minutePrice, trade.Price);
+
+        if (Math.abs(delta1) > 0.4) {
+          await Orders.createOrder(
+            stock,
+            delta1 > 0 ? "LONG" : "SHORT",
+            trade.Price,
+            `Price ${delta1}%`,
+            `${stock.name} ${delta1} ${
+              delta1 > 0 ? "LONG" : "SHORT"
+            } in 1 minute`
+          );
+        }
+
         trades[trade.Symbol] = {
           ...stockMap[trade.Symbol],
           price: parseInt(trade.Price * 100) / 100,

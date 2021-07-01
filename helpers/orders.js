@@ -31,14 +31,17 @@ module.exports = {
         channel: slack.channelsMap["stocks"].id,
       });
     } else
-      await knex.table("orders").update({
-        id: order.id,
-        reason: reason,
-        description: description,
-        log: { try: order.log.try + 1 },
-        type: type,
-        price_limit: price,
-      });
+      await knex
+        .table("orders")
+        .update({
+          id: order.id,
+          reason: reason,
+          description: description,
+          log: { try: order.log.try + 1 },
+          type: type,
+          price_limit: price,
+        })
+        .where("id", order.id);
   },
   executeOrder: async function () {
     const knex = await Knex();
