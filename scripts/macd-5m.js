@@ -2,7 +2,12 @@ const Knex = require("../helpers/knex");
 const FinHub = require("../helpers/finhub");
 const Alpaca = require("../helpers/alpaca");
 const moment = require("moment");
-const { delay, priceDiff, crossIndex } = require("../helpers/utils");
+const {
+  delay,
+  priceDiff,
+  crossIndex,
+  crossRSIIndex,
+} = require("../helpers/utils");
 const Slack = require("../helpers/slack");
 const Orders = require("../helpers/orders");
 

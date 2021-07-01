@@ -45,9 +45,9 @@ function isBetweenExtendedMarketHours() {
 
 function crossIndex(array) {
   let macdChangeIndex = -1;
-  let index = arr.length - 1;
+  let index = array.length - 1;
   while (index > -1 || macdChangeIndex > -1) {
-    if (index == arr.length - 1) {
+    if (index == array.length - 1) {
       index--;
     } else {
       const macd = array[index];
@@ -62,9 +62,9 @@ function crossIndex(array) {
 
 function crossRSIIndex(array) {
   let macdChangeIndex = -1;
-  let index = arr.length - 1;
+  let index = array.length - 1;
   while (index > -1 || macdChangeIndex > -1) {
-    if (index == arr.length - 1) {
+    if (index == array.length - 1) {
       index--;
     } else {
       const macd = array[index];
@@ -80,6 +80,7 @@ function crossRSIIndex(array) {
 
 module.exports = {
   delay,
+  crossRSIIndex,
   crossIndex,
   priceDiff,
   average,
