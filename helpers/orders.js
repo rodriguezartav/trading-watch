@@ -22,6 +22,7 @@ module.exports = {
         description: description,
         type: type,
         price_limit: price,
+        external_id: stock.name + "-" + parseInt(Math.random() * 100000),
       });
     } else
       await knex.table("orders").update({
