@@ -3,10 +3,11 @@ const FinHub = require("../helpers/finhub");
 const Alpaca = require("../helpers/alpaca");
 const util = require("util");
 const moment = require("moment");
-const { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
+let { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
 
 async function Run() {
   const knex = await Knex();
+  isPreMarket = isPreMarket();
   process.on("exit", async (code) => {
     console.log("disconnecting");
     await knex.destroy();
@@ -32,23 +33,22 @@ async function Run() {
     const stock = stocks[index];
     const price = prices[stock.name];
     stock.price = price.latestTrade.p;
+
     let firstTrade = stock.today_prices.split(",")[0];
     if (firstTrade) firstTrade = parseFloat(firstTrade);
+    else if (moment(price.dailyBar.t).isSame(moment(), "day"))
+      firstTrade = price.dailyBar.o;
+    else firstTrade = 0;
+
+    let delta_d = firstTrade ? priceDiff(firstTrade, price.latestTrade.p) : 0;
 
     promises.push(
       knex
         .table("stocks")
         .update({
-          price_today_open:
-            isPreMarket() && firstTrade ? firstTrade : price.dailyBar.o,
           last_price_update_at: moment().toISOString(),
           price: parseInt(price.latestTrade.p * 100) / 100,
-          price_delta_d: firstTrade
-            ? priceDiff(
-                isPreMarket() ? firstTrade : price.dailyBar.o,
-                price.latestTrade.p
-              )
-            : 0,
+          price_delta_d: delta_d,
         })
         .where("id", stock.id)
     );

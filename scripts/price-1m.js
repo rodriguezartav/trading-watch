@@ -32,6 +32,7 @@ async function Run() {
   while (index < stocks.length) {
     const stock = stocks[index];
     const price = prices[stock.name];
+    const isSame = moment(price.dailyBar.t).isSame(moment(), "day");
 
     const candles = (
       await Alpaca.data(`stocks/${stock.name}/bars`).query({
@@ -47,12 +48,19 @@ async function Run() {
               .hour(9)
               .minute(30)
               .format("YYYY-MM-DDTHH:mm:ss.00Z"),
-        end: moment().format("YYYY-MM-DDTHH:mm:ss.00Z"),
+        end: isPreMarket
+          ? moment()
+              .utcOffset(-4)
+              .hour(9)
+              .minute(30)
+              .format("YYYY-MM-DDTHH:mm:ss.00Z")
+          : moment().format("YYYY-MM-DDTHH:mm:ss.00Z"),
       })
     ).body.bars;
 
     const ratio = 5;
     let prices5m = candles.filter(function (value, index, ar) {
+      if (index == 0) return true;
       return index % ratio == 0;
     });
 
@@ -99,6 +107,8 @@ async function Run() {
     await knex
       .table("stocks")
       .update({
+        roc_5,
+        price_today_open: isPreMarket && isSame ? candles[0].o : 0,
         price_delta_1: isPreMarket || !delta1 ? 0 : delta1,
         price_delta_5: isPreMarket || !delta5 ? 0 : delta5,
         price_delta_30: isPreMarket || !delta30 ? 0 : delta30,

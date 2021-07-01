@@ -92,10 +92,9 @@ function Run() {
     const names = stocks.map((item) => item.name);
 
     socket.subscribeForTrades(names);
-    //});
   });
 
-  socket.onStockTrade((trade) => {
+  socket.onStockTrade(async (trade) => {
     const lastTradeTime = tradesTimes[trade.Symbol];
     if (!lastTradeTime) return;
     const diff = Math.abs(
@@ -111,6 +110,18 @@ function Run() {
         ),
       };
       tradesTimes[trade.Symbol] = moment(trade.Timestamp);
+
+      await knex
+        .table("stocks")
+        .update({
+          last_price_update_at: moment(trade.Timestamp).toISOString(),
+          price: parseInt(trade.Price * 100) / 100,
+          price_delta_d: priceDiff(
+            stockMap[trade.Symbol].price_today_open,
+            trade.Price
+          ),
+        })
+        .where("id", stock.id);
     }
   });
 
