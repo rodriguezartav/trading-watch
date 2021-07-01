@@ -55,9 +55,12 @@ module.exports = function Sockets(server) {
     console.log("websocket connection open");
 
     const id = setInterval(() => {
-      trades.time = moment().utcOffset(-4).toISOString();
       ws.send(
-        JSON.stringify({ stocks: trades, orders: orders }),
+        JSON.stringify({
+          time: moment().utcOffset(-4).toISOString(),
+          stocks: trades,
+          orders: orders,
+        }),
         function () {}
       );
     }, 1000);
