@@ -13,6 +13,8 @@ module.exports = {
       .where("type", type)
       .first();
 
+    if (type == "SHORT" && !order) return true;
+
     if (!order) {
       await knex.table("orders").insert({
         stock_id: stock.id,

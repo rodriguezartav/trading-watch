@@ -43,6 +43,10 @@ async function loadStocks() {
 
 async function loadOrders() {
   try {
+    await knex
+      .table("orders")
+      .delete()
+      .where("updated_at", "<", moment().add(-10, "min").toISOString());
     orders = await knex.table("orders").select();
   } catch (e) {
     console.error(e);
@@ -107,10 +111,13 @@ function Run() {
 
       if (diff > 1) {
         const todayPrices = stock.today_prices.split(",");
-        const minutePrice = todayPrices[todayPrices.length - 1];
-        let delta1 = priceDiff(minutePrice, trade.Price);
+        const p1 = todayPrices[todayPrices.length - 1];
+        const p2 = todayPrices[todayPrices.length - 1];
 
-        if (Math.abs(delta1) > 0.4) {
+        let delta1 = priceDiff(p1, trade.Price);
+        let delta2 = priceDiff(p1, p2);
+
+        if (Math.abs(delta1) > 0.4 && Math.abs(delta2) > 0.4) {
           await Orders.createOrder(
             stock,
             delta1 > 0 ? "LONG" : "SHORT",
