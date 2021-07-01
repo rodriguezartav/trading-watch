@@ -111,23 +111,25 @@ function Run() {
       );
 
       if (diff > 1) {
-        const todayPrices = stock.today_prices.split(",");
-        const p1 = todayPrices[todayPrices.length - 1];
-        const p2 = todayPrices[todayPrices.length - 1];
+        const minute_prices_deltas = JSON.parse(stock.minute_prices_deltas);
+        const p1 = minute_prices_deltas[0];
+        const p2 = minute_prices_deltas[1];
 
-        let delta1 = priceDiff(p1, trade.Price);
-        let delta2 = priceDiff(p1, p2);
+        if (p1 && p2) {
+          let delta1 = priceDiff(p1, trade.Price);
+          let delta2 = priceDiff(p1, p2);
 
-        if (Math.abs(delta1) > 0.4 && Math.abs(delta2) > 0.4) {
-          await Orders.createOrder(
-            stock,
-            delta1 > 0 ? "LONG" : "SHORT",
-            trade.Price,
-            `Price ${delta1}%`,
-            `${stock.name} ${delta1} ${
-              delta1 > 0 ? "LONG" : "SHORT"
-            } in 1 minute`
-          );
+          if (Math.abs(delta1) > 0.4 && Math.abs(delta2) > 0.4) {
+            await Orders.createOrder(
+              stock,
+              delta1 > 0 ? "LONG" : "SHORT",
+              trade.Price,
+              `Price ${delta1}%`,
+              `${stock.name} ${delta1} ${
+                delta1 > 0 ? "LONG" : "SHORT"
+              } in 1 minute`
+            );
+          }
         }
 
         trades[trade.Symbol] = {
