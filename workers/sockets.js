@@ -95,11 +95,23 @@ function Run() {
   });
 
   socket.onStockTrade(async (trade) => {
+    const stock = stockMap[trade.Symbol];
+
     const lastTradeTime = tradesTimes[trade.Symbol];
-    if (!lastTradeTime) return;
     const diff = Math.abs(
       lastTradeTime.diff(moment(trade.Timestamp), "second")
     );
+
+    const todayPrices = stock.today_prices.split(",");
+    const minutePrice = today_prices[today_prices.length - 1];
+
+    if (pricesDiff(minutePrice, trade.Price) > 0.4) {
+      await knex.table("pending_orders").insert({
+        stock_id: stock.id,
+        reason: "Price Sheer",
+        type: "LONG",
+      });
+    }
     if (diff > 1) {
       trades[trade.Symbol] = {
         ...stockMap[trade.Symbol],
