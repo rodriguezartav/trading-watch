@@ -107,7 +107,7 @@ function Run() {
     const todayPrices = stock.today_prices.split(",");
     const minutePrice = todayPrices[todayPrices.length - 1];
     let delta1 = priceDiff(minutePrice, trade.Price);
-    if (Math.abd(delta1) > 0.4) {
+    if (Math.abs(delta1) > 0.4) {
       await Orders.create(
         stock,
         delta1 > 0 ? "LONG" : "SHORT",
