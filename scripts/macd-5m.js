@@ -2,8 +2,9 @@ const Knex = require("../helpers/knex");
 const FinHub = require("../helpers/finhub");
 const Alpaca = require("../helpers/alpaca");
 const moment = require("moment");
-const { delay, priceDiff } = require("../helpers/utils");
+const { delay, priceDiff, crossIndex } = require("../helpers/utils");
 const Slack = require("../helpers/slack");
+const Orders = require("../helpers/orders");
 
 async function Run() {
   const knex = await Knex();
@@ -70,28 +71,36 @@ async function Run() {
       // stock.macd_5_hist = macd_5.macdHist[lastIndex5];
       stock.rsi_5 = rsi_5.rsi[lastIndex5];
 
-      let macdChangeIndex = -1;
-      macd_5.macdHist.forEach((macd, index) => {
-        if (index == 0) return;
-        const lastMacd = macd_5.macdHist[index - 1];
-        if (macd > 0 && lastMacd < 0) macdChangeIndex = index;
-        else if (macd < 0 && lastMacd > 0) macdChangeIndex = index;
-      });
+      const macdCross = crossIndex(macd_5.macdHist);
+      rsiCross = crossRSIIndex(rsi_5.rsi);
 
-      stock.macd_5_last_cross = moment
-        .unix(
-          macdChangeIndex == -1
-            ? moment("2020-01-01").unix()
-            : macd_5.t[macdChangeIndex]
-        )
-        .toISOString();
+      if (macdCross == 0) {
+        await Orders.createOrder(
+          stock,
+          macd_5.macdHist > 0 ? "LONG" : "SHORT",
+          currentClose,
+          "MACD CROSS",
+          `${stock.name} MACD Cross`
+        );
+      }
+      if (rsiCross == 0) {
+        await Orders.createOrder(
+          stock,
+          rs > 0 ? "LONG" : "SHORT",
+          currentClose,
+          "RSI CROSS",
+          `${stock.name} MACD Cross`
+        );
+      }
 
-      if (stock.price_delta_5 > 1) {
-        const slack = await Slack();
-        await slack.chat.postMessage({
-          text: `${stock.name} increased ${stock.price_delta_5} % in the last 5 minutes`,
-          channel: slack.channelsMap["stocks"].id,
-        });
+      if (Math.abd(stock.price_delta_5) > 1) {
+        await Orders.createOrder(
+          stock,
+          stock.price_delta_5 > 0 ? "LONG" : "SHORT",
+          currentClose,
+          "5 Min Price",
+          `${stock.name} ${stock.price_delta_5} % in 5 minutes`
+        );
       }
 
       results.push({ stock });

@@ -43,8 +43,44 @@ function isBetweenExtendedMarketHours() {
   );
 }
 
+function crossIndex(array) {
+  let macdChangeIndex = -1;
+  let index = arr.length - 1;
+  while (index > -1 || macdChangeIndex > -1) {
+    if (index == arr.length - 1) {
+      index--;
+    } else {
+      const macd = array[index];
+      const lastMacd = array[index - 1];
+      if (macd > 0 && lastMacd < 0) macdChangeIndex = index;
+      else if (macd < 0 && lastMacd > 0) macdChangeIndex = index;
+      index--;
+    }
+  }
+  return macdChangeIndex;
+}
+
+function crossRSIIndex(array) {
+  let macdChangeIndex = -1;
+  let index = arr.length - 1;
+  while (index > -1 || macdChangeIndex > -1) {
+    if (index == arr.length - 1) {
+      index--;
+    } else {
+      const macd = array[index];
+      const lastMacd = array[index - 1];
+
+      if (macd < 70 && lastMacd > 70) macdChangeIndex = index;
+      else if (macd > 30 && lastMacd < 30) macdChangeIndex = index;
+      index--;
+    }
+  }
+  return macdChangeIndex;
+}
+
 module.exports = {
   delay,
+  crossIndex,
   priceDiff,
   average,
   isPreMarket,

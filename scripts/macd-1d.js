@@ -2,8 +2,14 @@ const Knex = require("../helpers/knex");
 const FinHub = require("../helpers/finhub");
 const Alpaca = require("../helpers/alpaca");
 const moment = require("moment");
-const { delay, priceDiff } = require("../helpers/utils");
+const {
+  delay,
+  priceDiff,
+  crossIndex,
+  crossRSIIndex,
+} = require("../helpers/utils");
 const Slack = require("../helpers/slack");
+const Orders = require("../helpers/orders");
 
 async function Run() {
   const knex = await Knex();
@@ -83,20 +89,10 @@ async function Run() {
       stock.ema_d_200 = ema_d_200.ema[ema_d_200.ema.length - 1];
       stock.ema_d_50 = ema_d_50.ema[ema_d_50.ema.length - 1];
 
-      let macdChangeIndex = -1;
-      macd_d.macdHist.forEach((macd, index) => {
-        if (index == 0) return;
-        const lastMacd = macd_d.macdHist[index - 1];
-        if (macd > 0.001 && lastMacd < 0.001) macdChangeIndex = index;
-        else if (macd < 0.001 && lastMacd > 0.001) macdChangeIndex = index;
-      });
-      stock.macd_d_last_cross = moment
-        .unix(
-          macdChangeIndex == -1
-            ? moment().add(-120, "days").unix()
-            : macd_d.t[macdChangeIndex]
-        )
-        .toISOString();
+      if (crossIndex(macd_d.macdHist)) {
+      }
+      if (crossRSIIndex(rsi_d.rsi)) {
+      }
 
       results.push({ stock });
       return stock;

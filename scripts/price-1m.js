@@ -4,6 +4,8 @@ const Alpaca = require("../helpers/alpaca");
 const util = require("util");
 const moment = require("moment");
 let { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
+const Orders = require("../helpers/orders");
+
 const Slack = require("../helpers/slack");
 isPreMarket = isPreMarket();
 
@@ -50,8 +52,8 @@ async function Run() {
         end: isPreMarket
           ? moment()
               .utcOffset(-4)
-              .hour(9)
-              .minute(30)
+              .hour(16)
+              .minute(00)
               .format("YYYY-MM-DDTHH:mm:ss.00Z")
           : moment().format("YYYY-MM-DDTHH:mm:ss.00Z"),
       })
