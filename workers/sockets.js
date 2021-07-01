@@ -97,47 +97,52 @@ function Run() {
   });
 
   socket.onStockTrade(async (trade) => {
-    const stock = stockMap[trade.Symbol];
+    try {
+      const stock = stockMap[trade.Symbol];
 
-    const lastTradeTime = tradesTimes[trade.Symbol];
-    const diff = Math.abs(
-      lastTradeTime.diff(moment(trade.Timestamp), "second")
-    );
-
-    const todayPrices = stock.today_prices.split(",");
-    const minutePrice = todayPrices[todayPrices.length - 1];
-    let delta1 = priceDiff(minutePrice, trade.Price);
-    if (Math.abs(delta1) > 0.4) {
-      await Orders.create(
-        stock,
-        delta1 > 0 ? "LONG" : "SHORT",
-        trade.Price,
-        `Price ${delta1}%`,
-        `${stock.name} ${delta1 > 0 ? "LONG" : "SHORT"} in 1 minute`
+      const lastTradeTime = tradesTimes[trade.Symbol];
+      const diff = Math.abs(
+        lastTradeTime.diff(moment(trade.Timestamp), "second")
       );
-    }
-    if (diff > 1) {
-      trades[trade.Symbol] = {
-        ...stockMap[trade.Symbol],
-        price: parseInt(trade.Price * 100) / 100,
-        price_delta_d: priceDiff(
-          stockMap[trade.Symbol].price_today_open,
-          trade.Price
-        ),
-      };
-      tradesTimes[trade.Symbol] = moment(trade.Timestamp);
 
-      await knex
-        .table("stocks")
-        .update({
-          last_price_update_at: moment(trade.Timestamp).toISOString(),
+      const todayPrices = stock.today_prices.split(",");
+      const minutePrice = todayPrices[todayPrices.length - 1];
+      let delta1 = priceDiff(minutePrice, trade.Price);
+      if (Math.abs(delta1) > 0.4) {
+        await Orders.createOrder(
+          stock,
+          delta1 > 0 ? "LONG" : "SHORT",
+          trade.Price,
+          `Price ${delta1}%`,
+          `${stock.name} ${delta1 > 0 ? "LONG" : "SHORT"} in 1 minute`
+        );
+      }
+      if (diff > 1) {
+        trades[trade.Symbol] = {
+          ...stockMap[trade.Symbol],
           price: parseInt(trade.Price * 100) / 100,
           price_delta_d: priceDiff(
             stockMap[trade.Symbol].price_today_open,
             trade.Price
           ),
-        })
-        .where("id", stock.id);
+        };
+        tradesTimes[trade.Symbol] = moment(trade.Timestamp);
+
+        await knex
+          .table("stocks")
+          .update({
+            last_price_update_at: moment(trade.Timestamp).toISOString(),
+            price: parseInt(trade.Price * 100) / 100,
+            price_delta_d: priceDiff(
+              stockMap[trade.Symbol].price_today_open,
+              trade.Price
+            ),
+          })
+          .where("id", stock.id);
+      }
+    } catch (e) {
+      console.log("NOTICE");
+      console.log(e);
     }
   });
 
