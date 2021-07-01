@@ -106,10 +106,11 @@ function Run() {
     const minutePrice = today_prices[today_prices.length - 1];
 
     if (pricesDiff(minutePrice, trade.Price) > 0.4) {
-      await knex.table("pending_orders").insert({
+      await knex.table("orders").insert({
         stock_id: stock.id,
         reason: "Price Sheer",
         type: "LONG",
+        price_limit: trade.Price,
       });
     }
     if (diff > 1) {

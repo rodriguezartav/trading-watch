@@ -67,6 +67,13 @@ setInterval(async () => {
             },
           });
 
+          await knex
+            .table("jobs")
+            .update({
+              status: "working",
+            })
+            .whereIn("id", ids);
+
           console.log(
             `API_EVENT:::JOB_CREATOR:::INSERT_JOB:::${JSON.stringify({
               job_id: ids[0],
