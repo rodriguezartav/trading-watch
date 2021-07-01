@@ -2,6 +2,7 @@ require("dotenv").config();
 const moment = require("moment");
 const Knex = require("../helpers/knex");
 const { priceDiff } = require("../helpers/utils");
+const Slack = require("../helpers/slack");
 
 var WebSocketServer = require("ws").Server;
 
@@ -104,13 +105,18 @@ function Run() {
 
     const todayPrices = stock.today_prices.split(",");
     const minutePrice = todayPrices[todayPrices.length - 1];
-
-    if (priceDiff(minutePrice, trade.Price) > 0.4) {
+    let delta1 = priceDiff(minutePrice, trade.Price);
+    if (delta1 > 0.4) {
       await knex.table("orders").insert({
         stock_id: stock.id,
         reason: "Price Sheer",
         type: "LONG",
         price_limit: trade.Price,
+      });
+      const slack = await Slack();
+      await slack.chat.postMessage({
+        text: `${stock.name} increased ${delta1} % in the last minute. So far today ${stock.price_delta_d}`,
+        channel: slack.channelsMap["stocks"].id,
       });
     }
     if (diff > 1) {
