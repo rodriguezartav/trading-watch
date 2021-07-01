@@ -60,6 +60,7 @@ async function Run() {
 
     let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
 
+    const p_1 = candles[candles.length - 1];
     const p_2 = candles[candles.length - 2];
     const p_3 = candles[candles.length - 3];
     const p_4 = candles[candles.length - 4];
@@ -69,6 +70,15 @@ async function Run() {
     let delta4 = p_4 && priceDiff(p_4.o, p_4.h);
     let delta3 = p_3 && priceDiff(p_3.o, p_3.h);
     let delta2 = p_2 && priceDiff(p_2.o, p_2.h);
+    let delta1High = p_1 && priceDiff(p_1.o, p_1.h);
+
+    let minute_prices_deltas = JSON.stringify([
+      delta1High || 0,
+      delta2 || 0,
+      delta3 || 0,
+      delta4 || 0,
+      delta5 || 0,
+    ]);
 
     let delta30 =
       candles.length > 30 &&
@@ -94,6 +104,7 @@ async function Run() {
         price_delta_30: isPreMarket || !delta30 ? 0 : delta30,
         price_delta_90: isPreMarket || !delta90 ? 0 : delta90,
         today_prices: prices5m.map((item) => item.c).join(","),
+        minute_prices_deltas: minute_prices_deltas,
       })
       .where("id", stock.id);
 

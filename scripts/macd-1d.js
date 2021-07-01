@@ -76,6 +76,8 @@ async function Run() {
         macd_d.o[lastIndex]
       );
 
+      stock.month_prices = JSON.stringify(macd_d.c.slice(-30));
+
       stock.macd_d_hist = macd_d.macdHist[lastIndex];
       stock.rsi_d = rsi_d.rsi[lastIndex];
       stock.ema_d_200 = ema_d_200.ema[ema_d_200.ema.length - 1];

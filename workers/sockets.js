@@ -20,6 +20,7 @@ let trades = {};
 let tradesTimes = {};
 let stocks = [];
 let stockMap = {};
+let orders = [];
 
 process.on("exit", async (code) => {
   console.log("disconnecting");
@@ -55,7 +56,10 @@ module.exports = function Sockets(server) {
 
     const id = setInterval(() => {
       trades.time = moment().utcOffset(-4).toISOString();
-      ws.send(JSON.stringify(trades), function () {});
+      ws.send(
+        JSON.stringify({ stocks: trades, orders: orders }),
+        function () {}
+      );
     }, 1000);
 
     ws.on("close", function () {
@@ -74,7 +78,6 @@ function Run() {
     console.log("Connected");
     const names = stocks.map((item) => item.name);
 
-    //stocks.forEach((item) => {
     socket.subscribeForTrades(names);
     //});
   });
