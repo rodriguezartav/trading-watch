@@ -32,7 +32,6 @@ async function Run() {
   while (index < stocks.length) {
     const stock = stocks[index];
     const price = prices[stock.name];
-    const isSame = moment(price.dailyBar.t).isSame(moment(), "day");
 
     const candles = (
       await Alpaca.data(`stocks/${stock.name}/bars`).query({
@@ -96,19 +95,11 @@ async function Run() {
       candles.length > 90 &&
       priceDiff(candles[candles.length - 90].o, price.latestTrade.p);
 
-    if (delta1 > 0.4) {
-      const slack = await Slack();
-      await slack.chat.postMessage({
-        text: `${stock.name} increased ${delta1} % in the last minute. So far today ${stock.price_delta_d}`,
-        channel: slack.channelsMap["stocks"].id,
-      });
-    }
-
     await knex
       .table("stocks")
       .update({
         roc_5,
-        price_today_open: isPreMarket && isSame ? candles[0].o : 0,
+        price_today_open: prices5m[0] || 0,
         price_delta_1: isPreMarket || !delta1 ? 0 : delta1,
         price_delta_5: isPreMarket || !delta5 ? 0 : delta5,
         price_delta_30: isPreMarket || !delta30 ? 0 : delta30,
