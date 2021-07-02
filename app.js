@@ -15,6 +15,7 @@ app.use(cookieParser());
 
 app.use("/", indexRouter);
 app.use("/webhooks/heroku", require("./routes/webhooks/heroku"));
+app.use("/stocks", require("./routes/stocks"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

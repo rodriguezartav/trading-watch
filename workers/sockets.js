@@ -80,7 +80,7 @@ module.exports = function Sockets(server) {
         }),
         function () {}
       );
-    }, 1000);
+    }, 750);
 
     ws.on("close", function () {
       console.log("websocket connection close");
@@ -105,12 +105,24 @@ function Run() {
     try {
       const stock = stockMap[trade.Symbol];
 
-      const lastTradeTime = tradesTimes[trade.Symbol];
+      const lastTradeTime =
+        tradesTimes[trade.Symbol] || moment().add(-1, "day");
       const diff = Math.abs(
         lastTradeTime.diff(moment(trade.Timestamp), "second")
       );
 
-      if (diff > 1) {
+      trades[trade.Symbol] = {
+        ...stockMap[trade.Symbol],
+        price: parseInt(trade.Price * 100) / 100,
+        price_delta_d: priceDiff(
+          stockMap[trade.Symbol].price_today_open,
+          trade.Price
+        ),
+      };
+
+      if (diff >= 1) {
+        tradesTimes[trade.Symbol] = moment(trade.Timestamp);
+
         const minute_prices_deltas = JSON.parse(stock.minute_prices_deltas);
         const p1 = minute_prices_deltas[0];
         const p2 = minute_prices_deltas[1];
@@ -128,16 +140,6 @@ function Run() {
             );
           }
         }
-
-        trades[trade.Symbol] = {
-          ...stockMap[trade.Symbol],
-          price: parseInt(trade.Price * 100) / 100,
-          price_delta_d: priceDiff(
-            stockMap[trade.Symbol].price_today_open,
-            trade.Price
-          ),
-        };
-        tradesTimes[trade.Symbol] = moment(trade.Timestamp);
 
         await knex
           .table("stocks")
