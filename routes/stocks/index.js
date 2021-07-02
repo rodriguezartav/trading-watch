@@ -14,7 +14,7 @@ router.all("/:symbol/:resolution", async function (req, res, next) {
     if (req.params.resolution == "1")
       start_date = moment().utcOffset(-4).add(-5, "hours").unix();
     else if (req.params.resolution == "5")
-      start_date = moment().utcOffset(-4).startOf("day").unix();
+      start_date = moment().utcOffset(-2).startOf("day").unix();
     else if (req.params.resolution == "15")
       start_date = moment().utcOffset(-4).startOf("day").unix();
     else if (req.params.resolution == "30")
