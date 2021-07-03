@@ -113,7 +113,7 @@ async function Run() {
       .table("stocks")
       .update({
         roc_5,
-        price_today_open: prices5m[0],
+        price_today_open: prices5m[0] || 0,
         price_delta_1: delta1 || 0,
         price_delta_5: delta5 || 0,
         price_delta_30: delta30 || 0,
