@@ -35,6 +35,17 @@ async function Run() {
     const stock = stocks[index];
     const price = prices[stock.name];
 
+    let candles5M = await FinHub.Candles(
+      stock.name,
+      "5",
+      isPreMarket
+        ? moment().utcOffset(-4).hour(4).minute(0).unix()
+        : moment().utcOffset(-4).hour(9).minute(30).unix(),
+      isPreMarket
+        ? moment().utcOffset(-4).hour(16).minute(00).unix()
+        : moment().unix()
+    );
+
     const candles = (
       await Alpaca.data(`stocks/${stock.name}/bars`).query({
         timeframe: "1Min",
@@ -59,15 +70,16 @@ async function Run() {
       })
     ).body.bars;
 
-    const ratio = 5;
-    let prices5m = candles.filter(function (value, index, ar) {
-      if (index == 0) return true;
-      return index % ratio == 0;
-    });
+    if (!candles5M.c) candles5M = { c: [] };
 
-    let roc_5 = average(candles.slice(-15).map((item) => item.c));
+    let prices5m = candles5M.c;
 
-    let delta1 = priceDiff(price.minuteBar.o, price.latestTrade.p);
+    let roc_5 = average(candles5M.c.slice(-15).map((item) => item.c));
+
+    let delta1 =
+      candles.length == 0
+        ? 0
+        : priceDiff(price.minuteBar.o, price.latestTrade.p);
 
     const p_1 = candles[candles.length - 1];
     const p_2 = candles[candles.length - 2];
@@ -101,12 +113,12 @@ async function Run() {
       .table("stocks")
       .update({
         roc_5,
-        price_today_open: prices5m[0] ? prices5m[0].c : 0,
+        price_today_open: prices5m[0],
         price_delta_1: delta1 || 0,
         price_delta_5: delta5 || 0,
         price_delta_30: delta30 || 0,
         price_delta_90: delta90 || 0,
-        today_prices: prices5m.map((item) => item.c).join(","),
+        today_prices: prices5m.join(","),
         minute_prices_deltas: minute_prices_deltas,
       })
       .where("id", stock.id);

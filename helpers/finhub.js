@@ -41,6 +41,29 @@ async function Indicator(
   }
 }
 
+async function Candles(symbol, resolution, from, to, options = {}) {
+  const body = {
+    symbol,
+    resolution,
+    from,
+    to,
+    token: process.env.FINHUB_API,
+    ...options,
+  };
+
+  try {
+    const response = await request
+      .get(`https://finnhub.io/api/v1/stock/candle`)
+      .query(body);
+
+    return response.body;
+  } catch (e) {
+    console.log(e);
+    return { t: [], [indicator]: [] };
+  }
+}
+
 Run.Indicator = Indicator;
+Run.Candles = Candles;
 
 module.exports = Run;

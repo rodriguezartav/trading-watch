@@ -77,10 +77,32 @@ async function Run() {
 
       const lastIndex = macd_d.t.length - 1;
 
-      stock.price_delta_2d = priceDiff(
-        macd_d.o[lastIndex - 1],
-        macd_d.o[lastIndex]
-      );
+      try {
+        stock.price_delta_2d = priceDiff(
+          macd_d.o[lastIndex - 1],
+          macd_d.o[lastIndex]
+        );
+
+        stock.price_delta_3d = priceDiff(
+          macd_d.o[lastIndex - 2],
+          macd_d.o[lastIndex - 1]
+        );
+
+        stock.price_delta_4d = priceDiff(
+          macd_d.o[lastIndex - 3],
+          macd_d.o[lastIndex - 2]
+        );
+
+        stock.price_delta_5d = priceDiff(
+          macd_d.o[lastIndex - 4],
+          macd_d.o[lastIndex - 3]
+        );
+
+        stock.price_delta_6d = priceDiff(
+          macd_d.o[lastIndex - 5],
+          macd_d.o[lastIndex - 4]
+        );
+      } catch (e) {}
 
       stock.month_prices = JSON.stringify(macd_d.c.slice(-30));
 
@@ -89,10 +111,8 @@ async function Run() {
       stock.ema_d_200 = ema_d_200.ema[ema_d_200.ema.length - 1];
       stock.ema_d_50 = ema_d_50.ema[ema_d_50.ema.length - 1];
 
-      if (crossIndex(macd_d.macdHist)) {
-      }
-      if (crossRSIIndex(rsi_d.rsi)) {
-      }
+      // if (crossIndex(macd_d.macdHist)) {}
+      //if (crossRSIIndex(rsi_d.rsi)) {}
 
       results.push({ stock });
       return stock;
