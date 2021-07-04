@@ -8,7 +8,18 @@ const FinHub = require("../../helpers/finhub");
 
 const knex = Knex();
 
-router.all("/:symbol/:resolution", async function (req, res, next) {
+router.get("/", async function (req, res) {
+  const stocks = await knex.table("stocks").select();
+  return res.send(stocks);
+});
+
+router.post("/", async function (req, res) {
+  const ids = await knex.table("stocks").insert(req.body).returning("id");
+
+  return res.send({ id: ids[0], ...req.body });
+});
+
+router.all("/:symbol/:resolution", async function (req, res) {
   let start_date = req.body.start_date;
   if (!start_date) {
     if (req.params.resolution == "1")

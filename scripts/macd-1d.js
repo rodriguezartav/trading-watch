@@ -111,6 +111,8 @@ async function Run() {
       stock.ema_d_200 = ema_d_200.ema[ema_d_200.ema.length - 1];
       stock.ema_d_50 = ema_d_50.ema[ema_d_50.ema.length - 1];
 
+      stock.price_delta_d = 0;
+
       // if (crossIndex(macd_d.macdHist)) {}
       //if (crossRSIIndex(rsi_d.rsi)) {}
 
