@@ -3,7 +3,7 @@ const FinHub = require("../helpers/finhub");
 const Alpaca = require("../helpers/alpaca");
 const util = require("util");
 const moment = require("moment");
-let { delay, priceDiff, average, isPreMarket } = require("../helpers/utils");
+let { priceDiff, average, isPreMarket } = require("../helpers/utils");
 const Orders = require("../helpers/orders");
 
 const Slack = require("../helpers/slack");

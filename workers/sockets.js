@@ -23,6 +23,9 @@ let tradesTimes = {};
 let stocks = [];
 let stockMap = {};
 let orders = [];
+let socket;
+let socketConnected = false;
+let ws;
 
 process.on("exit", async (code) => {
   console.log("disconnecting");
@@ -31,11 +34,16 @@ process.on("exit", async (code) => {
 
 async function loadStocks() {
   try {
+    let hasNewStocks = false;
+
     stocks = await knex.table("stocks").select();
     stocks.forEach((item) => {
+      if (!stockMap[item.name]) hasNewStocks = true;
       stockMap[item.name] = item;
       tradesTimes[item.name] = tradesTimes[item.name] || moment();
     });
+
+    if (hasNewStocks && socketConnected) registerStocks(socket, stocks);
   } catch (e) {
     console.error(e);
   }
@@ -56,49 +64,44 @@ async function loadOrders() {
 
 setInterval(async () => {
   await loadStocks();
-}, 10000);
+}, 120000);
 
 setInterval(async () => {
   await loadOrders();
 }, 10000);
 
 module.exports = function Sockets(server) {
-  //
-
   var wss = new WebSocketServer({ server: server });
   console.log("websocket server created");
 
-  wss.on("connection", function (ws) {
+  wss.on("connection", function (_ws) {
     console.log("websocket connection open");
-
-    const id = setInterval(() => {
-      ws.send(
-        JSON.stringify({
-          time: moment().utcOffset(-4).toISOString(),
-          stocks: trades,
-          orders: orders,
-        }),
-        function () {}
-      );
-    }, 750);
+    ws = _ws;
 
     ws.on("close", function () {
       console.log("websocket connection close");
-      clearInterval(id);
     });
   });
 
   Run();
 };
 
+function registerStocks(socket, stocks) {
+  console.log("Socket Connected");
+  const names = stocks.map((item) => item.name);
+  socket.subscribeForTrades(names);
+}
+
 function Run() {
-  const socket = alpaca.data_stream_v2;
+  socket = alpaca.data_stream_v2;
+
+  socket.onError(function (e) {
+    console.log(e);
+  });
 
   socket.onConnect(function () {
-    console.log("Connected");
-    const names = stocks.map((item) => item.name);
-
-    socket.subscribeForTrades(names);
+    socketConnected = true;
+    registerStocks(socket, stocks);
   });
 
   socket.onStockTrade(async (trade) => {
@@ -112,7 +115,9 @@ function Run() {
       );
 
       trades[trade.Symbol] = {
-        ...stockMap[trade.Symbol],
+        name: trade.Symbol,
+        id: stock.id,
+        last_price_update_at: moment(trade.Timestamp).toISOString(),
         price: parseInt(trade.Price * 100) / 100,
         price_delta_d: priceDiff(
           stockMap[trade.Symbol].price_today_open,
@@ -122,6 +127,14 @@ function Run() {
 
       if (diff >= 1) {
         tradesTimes[trade.Symbol] = moment(trade.Timestamp);
+
+        ws.send(
+          JSON.stringify({
+            time: moment().utcOffset(-4).toISOString(),
+            trade: trades[trade.Symbol],
+          }),
+          function () {}
+        );
 
         const minute_prices_deltas = JSON.parse(stock.minute_prices_deltas);
         const p1 = minute_prices_deltas[0];
@@ -159,9 +172,13 @@ function Run() {
     }
   });
 
-  loadStocks().then(() => {
-    socket.connect();
-  });
+  loadStocks()
+    .then(() => {
+      // socket.connect();
+    })
+    .catch((e) => {
+      console.log(e);
+    });
 }
 
 if (process.env.LOCAL) Run();

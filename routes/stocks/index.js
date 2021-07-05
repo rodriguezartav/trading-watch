@@ -14,9 +14,42 @@ router.get("/", async function (req, res) {
 });
 
 router.post("/", async function (req, res) {
-  const ids = await knex.table("stocks").insert(req.body).returning("id");
+  let body = {
+    ...req.body,
+    price_today_open: 0,
+    price: 0,
+    amount: 0,
+    average_price: 0,
+    macd_d_hist: 0,
+    macd_5_hist: 0,
+    price_delta_1: 0,
+    price_delta_5: 0,
+    price_delta_30: 0,
+    price_delta_90: 0,
+    price_delta_d: 0,
+    roc_5: 0,
+    rsi_5: 0,
+    today_prices: "",
+    importance: 0,
+    last_price_update_at: moment().toISOString(),
+    price_today_open: 0,
+    price_delta_2d: 0,
+    rsi_d: 0,
+    ema_d_200: 0,
+    macd_30_hist: 0,
+    rsi_30: 0,
+    ema_d_50: 0,
+    month_prices: "",
+    minute_prices_deltas: "[]",
+    price_delta_3d: 0,
+    price_delta_4d: 0,
+    price_delta_5d: 0,
+    price_delta_6d: 0,
+  };
 
-  return res.send({ id: ids[0], ...req.body });
+  const ids = await knex.table("stocks").insert(body).returning("id");
+
+  return res.send({ id: ids[0], ...body });
 });
 
 router.all("/:symbol/:resolution", async function (req, res) {
