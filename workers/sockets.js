@@ -8,6 +8,7 @@ const Proposals = require("../helpers/proposals");
 var WebSocketServer = require("ws").Server;
 
 const Alpaca = require("@alpacahq/alpaca-trade-api");
+const Slack = require("../helpers/slack");
 const API_KEY = process.env.APCA_API_KEY_ID;
 const API_SECRET = process.env.APCA_API_SECRET_KEY;
 
@@ -26,6 +27,7 @@ let proposals = [];
 let socket;
 let socketConnected = false;
 let ws;
+let slack;
 
 process.on("exit", async (code) => {
   console.log("disconnecting");
@@ -140,15 +142,15 @@ function Run() {
 
         if (p1 && p2) {
           if (Math.abs(p1) > 0.4 && Math.abs(p2) > 0.4) {
-            let proposal = await Proposals.createProposal(
-              stock,
-              delta1 > 0 ? "LONG" : "SHORT",
-              trade.Price,
-              `Price ${delta1}% ${delta1}%`,
-              `${stock.name} ${delta1} ${delta2} ${
-                delta1 > 0 ? "LONG" : "SHORT"
-              } in 2 minutes`
-            );
+            if (!slack) slack = await Slack();
+
+            await slack.chat.postMessage({
+              text: `Consider ${p1 > 0 ? "LONG" : "SHORT"} ${stock.name} at ${
+                trade.price
+              }`,
+
+              channel: slack.channelMap["stocks"].id,
+            });
           }
         }
 
@@ -172,7 +174,7 @@ function Run() {
 
   loadStocks()
     .then(() => {
-      socket.connect();
+      // socket.connect();
     })
     .catch((e) => {
       console.log(e);
