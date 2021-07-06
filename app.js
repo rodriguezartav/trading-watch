@@ -20,6 +20,8 @@ app.options("*", cors()); // include before other routes
 app.use("/", indexRouter);
 app.use("/webhooks/heroku", require("./routes/webhooks/heroku"));
 app.use("/stocks", require("./routes/stocks"));
+app.use("/positions", require("./routes/positions"));
+app.use("/orders", require("./routes/orders"));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -34,7 +36,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.send(err);
 });
 
 if (process.env.NODE_ENV == "production") require("./workers/creator.js");

@@ -2,7 +2,7 @@ const Knex = require("./knex");
 const Slack = require("./slack");
 
 module.exports = {
-  createOrder: async function (stock, type, price, reason, description) {
+  createProposal: async function (stock, type, price, reason, description) {
     const knex = await Knex();
 
     const order = await knex
@@ -44,8 +44,5 @@ module.exports = {
           price_limit: price,
         })
         .where("id", order.id);
-  },
-  executeOrder: async function () {
-    const knex = await Knex();
   },
 };

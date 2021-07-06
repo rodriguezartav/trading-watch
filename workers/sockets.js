@@ -3,7 +3,7 @@ const moment = require("moment");
 const Knex = require("../helpers/knex");
 const { priceDiff } = require("../helpers/utils");
 
-const Orders = require("../helpers/orders");
+const Proposals = require("../helpers/proposals");
 
 var WebSocketServer = require("ws").Server;
 
@@ -22,7 +22,7 @@ let trades = {};
 let tradesTimes = {};
 let stocks = [];
 let stockMap = {};
-let orders = [];
+let proposals = [];
 let socket;
 let socketConnected = false;
 let ws;
@@ -49,14 +49,16 @@ async function loadStocks() {
   }
 }
 
-async function loadOrders() {
+async function loadProposals() {
   try {
-    await knex
-      .table("orders")
-      .delete()
-      .where("updated_at", "<", moment().add(-10, "m").toISOString())
-      .where("type", "LONG");
-    orders = await knex.table("orders").select();
+    proposals = await knex.table("proposals").select();
+    proposals.forEach((item) => {
+      if (!stockMap[item.name]) hasNewStocks = true;
+      stockMap[item.name] = item;
+      tradesTimes[item.name] = tradesTimes[item.name] || moment();
+    });
+
+    if (hasNewStocks && socketConnected) registerStocks(socket, stocks);
   } catch (e) {
     console.error(e);
   }
@@ -65,10 +67,6 @@ async function loadOrders() {
 setInterval(async () => {
   await loadStocks();
 }, 120000);
-
-setInterval(async () => {
-  await loadOrders();
-}, 10000);
 
 module.exports = function Sockets(server) {
   var wss = new WebSocketServer({ server: server });
@@ -131,7 +129,7 @@ function Run() {
         ws.send(
           JSON.stringify({
             time: moment().utcOffset(-4).toISOString(),
-            trade: trades[trade.Symbol],
+            trade: stockMap["AAPL"],
           }),
           function () {}
         );
@@ -142,7 +140,7 @@ function Run() {
 
         if (p1 && p2) {
           if (Math.abs(p1) > 0.4 && Math.abs(p2) > 0.4) {
-            await Orders.createOrder(
+            let proposal = await Proposals.createProposal(
               stock,
               delta1 > 0 ? "LONG" : "SHORT",
               trade.Price,
@@ -174,7 +172,7 @@ function Run() {
 
   loadStocks()
     .then(() => {
-      // socket.connect();
+      socket.connect();
     })
     .catch((e) => {
       console.log(e);

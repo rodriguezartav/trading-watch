@@ -5,11 +5,23 @@ const moment = require("moment");
 const superagent = require("superagent");
 const Slack = require("../../helpers/slack");
 const FinHub = require("../../helpers/finhub");
+const Alpaca = require("../../helpers/alpaca");
 
 const knex = Knex();
 
+router.get("/quote/:symbol", async function (req, res) {
+  const { body } = await Alpaca.quote(req.params.symbol);
+  console.log(body);
+  return res.send(body.quote); //
+});
+
 router.get("/", async function (req, res) {
-  const stocks = await knex.table("stocks").select();
+  const stocks = await knex
+    .table("stocks")
+    .select()
+    .orderBy("importance", "DESC")
+    .orderBy("name", "ASC");
+
   return res.send(stocks);
 });
 
