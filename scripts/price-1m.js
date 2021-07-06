@@ -4,7 +4,7 @@ const Alpaca = require("../helpers/alpaca");
 const util = require("util");
 const moment = require("moment");
 let { priceDiff, average, isPreMarket } = require("../helpers/utils");
-const Orders = require("../helpers/orders");
+const Proposals = require("../helpers/proposals");
 
 const Slack = require("../helpers/slack");
 isPreMarket = isPreMarket();

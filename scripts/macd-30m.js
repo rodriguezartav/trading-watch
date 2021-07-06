@@ -9,7 +9,7 @@ const {
   crossIndex,
 } = require("../helpers/utils");
 const Slack = require("../helpers/slack");
-const Orders = require("../helpers/orders");
+const Proposals = require("../helpers/proposals");
 
 async function Run() {
   const knex = await Knex();

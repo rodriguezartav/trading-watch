@@ -172,7 +172,7 @@ function Run() {
 
   loadStocks()
     .then(() => {
-      //socket.connect();
+      socket.connect();
     })
     .catch((e) => {
       console.log(e);

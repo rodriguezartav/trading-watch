@@ -9,7 +9,7 @@ const {
   crossRSIIndex,
 } = require("../helpers/utils");
 const Slack = require("../helpers/slack");
-const Orders = require("../helpers/orders");
+const Proposals = require("../helpers/proposals");
 
 async function Run() {
   const knex = await Knex();
@@ -80,7 +80,7 @@ async function Run() {
       rsiCross = crossRSIIndex(rsi_5.rsi);
 
       if (macdCross == 0) {
-        await Orders.createOrder(
+        await Proposals.createOrder(
           stock,
           macd_5.macdHist > 0 ? "LONG" : "SHORT",
           currentClose,
@@ -89,7 +89,7 @@ async function Run() {
         );
       }
       if (rsiCross == 0) {
-        await Orders.createOrder(
+        await Proposals.createOrder(
           stock,
           rs > 0 ? "LONG" : "SHORT",
           currentClose,
@@ -99,7 +99,7 @@ async function Run() {
       }
 
       if (Math.abd(stock.price_delta_5) > 1) {
-        await Orders.createOrder(
+        await Proposals.createOrder(
           stock,
           stock.price_delta_5 > 0 ? "LONG" : "SHORT",
           currentClose,

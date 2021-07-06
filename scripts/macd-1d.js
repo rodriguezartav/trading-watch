@@ -9,7 +9,6 @@ const {
   crossRSIIndex,
 } = require("../helpers/utils");
 const Slack = require("../helpers/slack");
-const Orders = require("../helpers/orders");
 
 async function Run() {
   const knex = await Knex();
