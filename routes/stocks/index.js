@@ -15,6 +15,18 @@ router.get("/quote/:symbol", async function (req, res) {
   return res.send(body.quote); //
 });
 
+router.get("/info/:symbol", async function (req, res) {
+  const { body: quote } = await Alpaca.quote(req.params.symbol);
+  const { body: positions } = await Alpaca.position(req.params.symbol);
+  const { body: proposals } = await knex
+    .table("proposals")
+    .select()
+    .join("stocks", "stocks.id", "proposals.stock_id")
+    .where("stocks.name", req.params.symbol);
+
+  return res.send({ quote, positions, proposals });
+});
+
 router.get("/", async function (req, res) {
   const stocks = await knex
     .table("stocks")
