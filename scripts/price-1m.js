@@ -88,9 +88,9 @@ async function Run() {
     const p_5 = candles[candles.length - 5];
 
     let delta5 = p_5 && priceDiff(p_5.o, p_5.h);
-    let delta4 = p_4 && priceDiff(p_5.c, p_4.h);
-    let delta3 = p_3 && priceDiff(p_4.o, p_3.h);
-    let delta2 = p_2 && priceDiff(p_3.o, p_2.h);
+    let delta4 = p_4 && p_5 && priceDiff(p_5.c, p_4.h);
+    let delta3 = p_3 && p_4 && priceDiff(p_4.o, p_3.h);
+    let delta2 = p_2 && p_3 && priceDiff(p_3.o, p_2.h);
     let delta1High = p_1 && p_2 && priceDiff(p_2.o, p_1.h);
 
     let minute_prices_deltas = JSON.stringify([
