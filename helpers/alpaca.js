@@ -14,11 +14,16 @@ function account() {
     .set("APCA-API-SECRET-KEY", process.env.APCA_API_SECRET_KEY);
 }
 
-function position(symbol) {
-  return request
-    .get(`https://api.alpaca.markets/v2/positions/${symbol}`)
-    .set("APCA-API-KEY-ID", process.env.APCA_API_KEY_ID)
-    .set("APCA-API-SECRET-KEY", process.env.APCA_API_SECRET_KEY);
+async function position(symbol) {
+  try {
+    let { body } = request
+      .get(`https://api.alpaca.markets/v2/positions/${symbol}`)
+      .set("APCA-API-KEY-ID", process.env.APCA_API_KEY_ID)
+      .set("APCA-API-SECRET-KEY", process.env.APCA_API_SECRET_KEY);
+    return { body };
+  } catch (e) {
+    return { body: [] };
+  }
 }
 
 function order(symbol) {

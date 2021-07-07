@@ -2,10 +2,9 @@ require("dotenv").config();
 const moment = require("moment");
 const Knex = require("../helpers/knex");
 const { priceDiff } = require("../helpers/utils");
+const Pusher = require("../helpers/pusher");
 
 const Proposals = require("../helpers/proposals");
-
-var WebSocketServer = require("ws").Server;
 
 const Alpaca = require("@alpacahq/alpaca-trade-api");
 const Slack = require("../helpers/slack");
@@ -26,13 +25,7 @@ let stockMap = {};
 let proposals = [];
 let socket;
 let socketConnected = false;
-let ws;
 let slack;
-
-process.on("exit", async (code) => {
-  console.log("disconnecting");
-  await knex.destroy();
-});
 
 async function loadStocks() {
   try {
@@ -70,27 +63,15 @@ setInterval(async () => {
   await loadStocks();
 }, 120000);
 
-module.exports = function Sockets(server) {
-  var wss = new WebSocketServer({ server: server });
-  console.log("websocket server created");
-
-  wss.on("connection", function (_ws) {
-    console.log("websocket connection open");
-    ws = _ws;
-
-    ws.on("close", function () {
-      console.log("websocket connection close");
-    });
-  });
-
-  Run();
-};
-
 function registerStocks(socket, stocks) {
-  console.log("Socket Connected");
+  console.log("Alpaca Socket Connected");
   const names = stocks.map((item) => item.name);
   socket.subscribeForTrades(names);
 }
+
+module.exports = function Sockets(server) {
+  Run();
+};
 
 function Run() {
   socket = alpaca.data_stream_v2;
@@ -127,14 +108,12 @@ function Run() {
 
       if (diff >= 1) {
         tradesTimes[trade.Symbol] = moment(trade.Timestamp);
-
-        ws.send(
-          JSON.stringify({
+        Pusher.trigger("my-channel", "my-event", {
+          message: JSON.stringify({
             time: moment().utcOffset(-4).toISOString(),
-            trade: stockMap["AAPL"],
+            trade: trades[trade.Symbol],
           }),
-          function () {}
-        );
+        });
 
         const minute_prices_deltas = JSON.parse(stock.minute_prices_deltas);
         const p1 = minute_prices_deltas[0];
@@ -144,13 +123,15 @@ function Run() {
           if (Math.abs(p1) > 0.4 && Math.abs(p2) > 0.4) {
             if (!slack) slack = await Slack();
 
+            /*
             await slack.chat.postMessage({
               text: `Consider ${p1 > 0 ? "LONG" : "SHORT"} ${stock.name} at ${
-                trade.price
+                parseInt(trade.Price * 100) / 100
               }`,
 
-              channel: slack.channelMap["stocks"].id,
+              channel: slack.channelsMap["stocks"].id,
             });
+            */
           }
         }
 
@@ -174,7 +155,7 @@ function Run() {
 
   loadStocks()
     .then(() => {
-      // socket.connect();
+      socket.connect();
     })
     .catch((e) => {
       console.log(e);

@@ -15,16 +15,20 @@ router.get("/quote/:symbol", async function (req, res) {
   return res.send(body.quote); //
 });
 
-router.get("/info/:symbol", async function (req, res) {
+router.get("/:symbol/info", async function (req, res) {
   const { body: quote } = await Alpaca.quote(req.params.symbol);
   const { body: positions } = await Alpaca.position(req.params.symbol);
-  const { body: proposals } = await knex
+  const proposals = await knex
     .table("proposals")
     .select()
     .join("stocks", "stocks.id", "proposals.stock_id")
     .where("stocks.name", req.params.symbol);
 
-  return res.send({ quote, positions, proposals });
+  return res.send({
+    quote: quote ? quote.quote : {},
+    positions: positions || [],
+    proposals: proposals || [],
+  });
 });
 
 router.get("/", async function (req, res) {
@@ -82,7 +86,7 @@ router.all("/:symbol/:resolution", async function (req, res) {
     if (req.params.resolution == "1")
       start_date = moment().utcOffset(-4).add(-5, "hours").unix();
     else if (req.params.resolution == "5")
-      start_date = moment().utcOffset(-2).startOf("day").unix();
+      start_date = moment().utcOffset(-4).startOf("day").unix();
     else if (req.params.resolution == "15")
       start_date = moment().utcOffset(-4).startOf("day").unix();
     else if (req.params.resolution == "30")
